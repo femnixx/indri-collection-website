@@ -1,16 +1,89 @@
-# React + Vite
+# 🧵 Indri Collection — Company Profile Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, lightweight company profile website for **Indri Collection**, a local tailor and clothing business. Built with **React + Vite + Tailwind CSS**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 👥 Team
 
-## React Compiler
+| Role | Name |
+|------|------|
+| 🎨 PM & UI/UX Designer | Deva |
+| 💻 Programmer | Abi Surya Auliya |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📄 Pages & Sections
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Hero** — Product and business location photos
+- **About** — The story behind Indri Collection
+- **Products & Services** — Main products and tailoring services offered
+- **Testimonials** — Customer reviews
+- **Footer** — Contact info and location
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js v18+
+- npm v9+
+
+### Clone & Run
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/femnixx/indri-collection-website.git
+
+# 2. Move into the project folder
+cd indri-collection-website
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the dev server
+npm run dev
+```
+
+Then open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## 🌿 Branch Structure
+
+Each feature has its own branch. Always branch off from `main` and open a PR when done.
+
+```
+main                   → production-ready code
+develop                → integration branch
+│
+├── feature/hero           → Hero section
+├── feature/about          → About / brand story section
+├── feature/products       → Products & tailoring services section
+├── feature/testimonials   → Customer testimonials section
+└── feature/footer         → Footer with contact & location
+```
+
+### Workflow
+
+```bash
+# Create and switch to your feature branch
+git checkout -b feature/your-feature-name
+
+# After working, push your branch
+git push origin feature/your-feature-name
+
+# Then open a Pull Request → develop
+```
+
+---
+
+## 🛠 Tech Stack
+
+- [React](https://react.dev/)
+- [Vite](https://vitejs.dev/)
+- [Tailwind CSS v4](https://tailwindcss.com/)
+
+---
+
+> Built with ❤️ for Indri Collection.
