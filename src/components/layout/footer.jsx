@@ -14,7 +14,7 @@ export default function Footer() {
 
         {/* Copyright center */}
         <div className="text-xs text-gray-400 font-light">
-          © 2024 Indri Collection. All rights reserved.
+          © {new Date().getFullYear()} Indri Collection. All rights reserved.
         </div>
         
         {/* Social Icons */}
