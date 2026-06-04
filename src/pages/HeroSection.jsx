@@ -57,7 +57,7 @@ function HeroSection() {
             {/* Dark overlay */}
             <div
                 style={{ transitionDuration: '900ms', transitionDelay: sectionVisible ? '150ms' : '0ms' }}
-                className={`absolute inset-0 bg-black/30 ${base} ${sectionVisible ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute inset-0  ${base} ${sectionVisible ? 'opacity-100' : 'opacity-0'}`}
             />
 
             {/* Hero content — pushed down to clear the fixed bar */}
