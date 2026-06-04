@@ -1,11 +1,11 @@
 import Bar from './components/Bar.jsx'
-import SectionOne from './pages/sectionOne.jsx'
+import HeroSection from './pages/HeroSection.jsx'
 
 function App() {
 
   return (
     <>
-    <SectionOne></SectionOne>
+    <HeroSection></HeroSection>
     <p>Template</p>
     </>
   )
