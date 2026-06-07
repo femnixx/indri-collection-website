@@ -94,27 +94,30 @@ function ContactSection() {
             <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-10">
 
                 {/* Store card */}
-                <Reveal delay={150}>
-                    <div className="bg-[#10324A] rounded-2xl p-8 flex flex-col items-center text-center w-full md:w-64 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                        <div className="w-14 h-14 rounded-full bg-[#11B5F5] flex items-center justify-center mb-5 shadow-lg">
-                            <PinIcon />
+                <a href="https://maps.app.goo.gl/vpvAbASRtMLoPpkT8" target='_blank'>
+                    <Reveal delay={150}>
+                        <div className="bg-[#10324A] rounded-2xl p-8 flex flex-col items-center text-center w-full md:w-64 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                            <div className="w-14 h-14 rounded-full bg-[#11B5F5] flex items-center justify-center mb-5 shadow-lg">
+                                <PinIcon />
+                            </div>
+                            <h3 className="text-white font-bold text-lg mb-2">Visit Our Store</h3>
+                            <p className="text-[#6ED8FF] text-sm leading-relaxed">
+                                Jalan Vinolia no 22, Jatimulyo,<br /> Lowokwaru, Kota Malang
+                            </p>
+                    
+                            {/* Decorative bars */}
+                            <div className="mt-6 flex gap-3">
+                                {[0, 1, 2].map(i => (
+                                    <div key={i} className="flex flex-col gap-1.5">
+                                        {[0, 1, 2].map(j => (
+                                            <div key={j} className="w-8 h-1.5 rounded-full bg-white/10" />
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <h3 className="text-white font-bold text-lg mb-2">Visit Our Store</h3>
-                        <p className="text-[#6ED8FF] text-sm leading-relaxed">
-                            Jalan Vinolia no 22, Jatimulyo,<br /> Lowokwaru, Kota Malang
-                        </p>
-                        {/* Decorative bars */}
-                        <div className="mt-6 flex gap-3">
-                            {[0, 1, 2].map(i => (
-                                <div key={i} className="flex flex-col gap-1.5">
-                                    {[0, 1, 2].map(j => (
-                                        <div key={j} className="w-8 h-1.5 rounded-full bg-white/10" />
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </Reveal>
+                    </Reveal>
+                </a>
 
                 {/* Contact details */}
                 <Reveal delay={300} className="flex-1 w-full">

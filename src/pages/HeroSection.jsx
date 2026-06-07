@@ -91,9 +91,9 @@ function HeroSection() {
                         style={{ transitionDuration: '600ms', transitionDelay: sectionVisible ? '850ms' : '0ms' }}
                         className={`${base} ${sectionVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}`}
                     >
-                        <button className='bg-[#11B5F5] hover:bg-[#6ED8FF] active:scale-95 text-white text-sm md:text-base font-semibold px-7 py-3 rounded-full transition-all duration-200 shadow-lg'>
+                        <a href='#about-us' className='bg-[#11B5F5] hover:bg-[#6ED8FF] active:scale-95 text-white text-sm md:text-base font-semibold px-7 py-3 rounded-full transition-all duration-200 shadow-lg'>
                             Explore Collection
-                        </button>
+                        </a>
                     </div>
 
                 </div>
