@@ -132,7 +132,7 @@ function ContactSection() {
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><InstagramIcon /></span>
                             @indricollection
                         </a>
-                        <a href="#"
+                        <a href="https://www.tiktok.com/@indricollection07" target='_blank'
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><TiktokIcon /></span>
                             @indricollection07
