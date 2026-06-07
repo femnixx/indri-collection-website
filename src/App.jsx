@@ -11,7 +11,7 @@ export default function App() {
       <MobileMenu />
       <main>
         <HeroSection />
-        <AboutUs /> 
+        <AboutUs />     
         <OurCollection />
         <Testimonial />
         <ContactSection />
