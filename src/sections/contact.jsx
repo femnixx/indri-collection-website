@@ -20,8 +20,8 @@ export default function Contact() {
              </div>
              <h3 className="text-xl font-bold mb-2">Visit Our Store</h3>
              <p className="text-gray-300 text-sm font-light leading-relaxed mb-10">
-               123 Fashion Avenue<br />
-               New York, NY 10001
+              Jalan Vinolia no 22, Jatimulyo, <br />
+              Lowokwaru, Kota Malang
              </p>
              {/* Decorative lines matching design */}
              <div className="flex gap-2 opacity-30">
@@ -40,7 +40,7 @@ export default function Contact() {
           <div className="flex flex-col gap-6 text-[#10324A]">
              <div className="flex items-center gap-4">
                 <Mail size={24} className="text-gray-400" />
-                <span className="font-medium">indri@gmail.com</span>
+                <span className="font-medium">indricollection@gmail.com</span>
              </div>
              <div className="flex items-center gap-4">
                 <Camera size={24} className="text-gray-400" />

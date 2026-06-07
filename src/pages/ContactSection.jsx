@@ -101,7 +101,7 @@ function ContactSection() {
                         </div>
                         <h3 className="text-white font-bold text-lg mb-2">Visit Our Store</h3>
                         <p className="text-[#6ED8FF] text-sm leading-relaxed">
-                            123 Fashion Avenue<br />New York, NY 10001
+                            Jalan Vinolia no 22, Jatimulyo,<br /> Lowokwaru, Kota Malang
                         </p>
                         {/* Decorative bars */}
                         <div className="mt-6 flex gap-3">
@@ -122,7 +122,7 @@ function ContactSection() {
                         <a href="mailto:indri@gmail.com"
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><MailIcon /></span>
-                            indri@gmail.com
+                            indricollection@gmail.com
                         </a>
                         <a href="#"
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
@@ -132,7 +132,7 @@ function ContactSection() {
                         <a href="#"
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><TiktokIcon /></span>
-                            @indricollection
+                            @indricollection07
                         </a>
 
                         <div className="border-t border-gray-100 pt-5 mt-1">
@@ -154,12 +154,12 @@ function Footer() {
             <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
                     <p className="font-bold text-lg">Indri Collection</p>
-                    <p className="text-[#6ED8FF] text-sm mt-1">123 Fashion Avenue, New York, NY 10001</p>
+                    <p className="text-[#6ED8FF] text-sm mt-1">Jalan Vinolia no 22, Jatimulyo, Lowokwaru, Kota Malang</p>
                 </div>
                 <div className="flex items-center gap-3">
                     {[
                         { icon: <ChatIcon />, label: 'Chat', href: '#' },
-                        { icon: <MailIcon />, label: 'Email', href: 'mailto:indri@gmail.com' },
+                        { icon: <MailIcon />, label: 'Email', href: 'mailto:indricollection@gmail.com' },
                         { icon: <InstagramIcon />, label: 'Instagram', href: '#' },
                     ].map(({ icon, label, href }) => (
                         <a key={label} href={href} aria-label={label}
