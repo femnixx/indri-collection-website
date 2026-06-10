@@ -122,7 +122,7 @@ function ContactSection() {
                 {/* Contact details */}
                 <Reveal delay={300} className="w-full md:w-auto md:min-w-[280px]">
                     <div className="flex flex-col gap-5">
-                        <a href="mailto:indri@gmail.com"
+                        <a href="mailto:indricollection@gmail.com"
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><MailIcon /></span>
                             <a href="mailto:indricollection@gmail.com">indricollection@gmail.com</a>
@@ -161,11 +161,11 @@ function Footer() {
                 </div>
                 <div className="flex items-center gap-3">
                     {[
-                        { icon: <ChatIcon />, label: 'Chat', href: '#' },
+                        { icon: <ChatIcon />, label: 'Chat', href: 'https://wa.me/6285385353014' },
                         { icon: <MailIcon />, label: 'Email', href: 'mailto:indricollection@gmail.com' },
                         { icon: <InstagramIcon />, label: 'Instagram', href: 'https://www.instagram.com/indricollection.mlg/' },
                     ].map(({ icon, label, href }) => (
-                        <a key={label} href={href} aria-label={label}
+                        <a key={label} href={href} aria-label={label} target='_blank'
                             className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[#11B5F5] hover:border-[#11B5F5] hover:scale-110 transition-all duration-200">
                             {icon}
                         </a>

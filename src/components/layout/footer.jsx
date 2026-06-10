@@ -19,10 +19,10 @@ export default function Footer() {
         
         {/* Social Icons */}
         <div className="flex items-center gap-4">
-          <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+          <a href="https://wa.me/6285385353014" target='_blank' className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
             <MessageCircle size={16} />
           </a>
-          <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+          <a href="mailto:indricollection@gmail.com" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
             <Mail size={16} />
           </a>
           <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
