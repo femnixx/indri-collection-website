@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const NAV_LINKS = [
     { label: 'Home', href: '#home' },
-    { label: 'Know More', href: '#know-more' },
+    { label: 'Know More', href: '#about-us' },
     { label: 'Product', href: '#product' },
     { label: 'Testimonial', href: '#testimonial' },
     { label: 'Contact', href: '#contact' },
@@ -74,7 +74,7 @@ function Bar() {
                 {/* Brand */}
                 <button
                     onClick={() => handleNavClick('#home')}
-                    className="text-white font-bold text-lg tracking-wide transition-opacity duration-200 hover:opacity-80"
+                    className="text-white font-extrabold text-lg tracking-wide transition-opacity duration-200 hover:opacity-80"
                 >
                     Indri Collection
                 </button>
@@ -124,7 +124,7 @@ function Bar() {
             >
                 {/* Drawer header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
-                    <span className="text-white font-bold text-lg">Indri Collection</span>
+                    <span className="text-white font-extrabold text-lg">Indri Collection</span>
                     <button
                         onClick={() => setMenuOpen(false)}
                         aria-label="Close menu"
