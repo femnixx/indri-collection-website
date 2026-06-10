@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import heroSectionBanner_desktop from '../assets/heroSectionBanner_desktop.svg';
-import heroSectionBanner_mobile from "../assets/heroSectionBanner_mobile.svg";
+import heroBg from '../assets/images/Main.jpg';
 
 // Re-triggerable scroll animation hook
 // Returns [ref, isVisible] — resets when element leaves viewport, re-animates on re-entry
@@ -44,25 +43,17 @@ function HeroSection() {
         >
             {/* Background Image Layer — smooth canvas scale down on reveal */}
             <img
-                src={heroSectionBanner_desktop}
-                alt="Hero background desktop"
-                style={{ transitionDuration: '1400ms', transitionDelay: '0ms' }}
-                className={`hidden md:block absolute inset-0 w-full h-full object-cover object-center ${base}
-                    ${sectionVisible ? 'scale-100 opacity-80' : 'scale-110 opacity-0'}`}
-            />
-            <img
-                src={heroSectionBanner_mobile}
-                alt="Hero background mobile"
-                style={{ transitionDuration: '1400ms', transitionDelay: '0ms' }}
-                className={`block md:hidden absolute inset-0 w-full h-full object-cover object-center ${base}
-                    ${sectionVisible ? 'scale-100 opacity-80' : 'scale-110 opacity-0'}`}
+                src={heroBg}
+                alt="Hero background"
+                style={{ transitionDuration: '1200ms', transitionDelay: sectionVisible ? '0ms' : '0ms' }}
+                className={`absolute inset-0 w-full h-full object-cover object-center ${base}
+                    ${sectionVisible ? 'scale-100 opacity-100' : 'scale-110 opacity-0'}`}
             />
 
             {/* Dark Tailored Overlay */}
             <div
-                style={{ transitionDuration: '1000ms', transitionDelay: sectionVisible ? '100ms' : '0ms' }}
-                className={`absolute inset-0 bg-gradient-to-tr from-[#1E2E42]/90 via-[#10324A]/60 to-transparent ${base} 
-                    ${sectionVisible ? 'opacity-100' : 'opacity-0'}`}
+                style={{ transitionDuration: '900ms', transitionDelay: sectionVisible ? '150ms' : '0ms' }}
+                className={`absolute inset-0 bg-[#10324A]/60 ${base} ${sectionVisible ? 'opacity-100' : 'opacity-0'}`}
             />
 
             {/* --- Unique Convection & Sewing Background Background Elements --- */}

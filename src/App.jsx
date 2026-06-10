@@ -7,7 +7,7 @@ import Testimonial from './sections/testimonial'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#F5FCFF] text-[#10324A] font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-[#F5FCFF] text-[#10324A] antialiased overflow-x-hidden" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <MobileMenu />
       <main>
         <HeroSection />

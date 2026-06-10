@@ -91,7 +91,7 @@ function ContactSection() {
             </Reveal>
 
             {/* Grid */}
-            <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-10">
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10">
 
                 {/* Store card */}
                 <a href="https://maps.app.goo.gl/vpvAbASRtMLoPpkT8" target='_blank'>
@@ -120,17 +120,17 @@ function ContactSection() {
                 </a>
 
                 {/* Contact details */}
-                <Reveal delay={300} className="flex-1 w-full">
+                <Reveal delay={300} className="w-full md:w-auto md:min-w-[280px]">
                     <div className="flex flex-col gap-5">
                         <a href="mailto:indri@gmail.com"
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><MailIcon /></span>
                             indricollection@gmail.com
                         </a>
-                        <a href="#"
+                        <a href="https://www.instagram.com/indricollection.mlg/" target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
                             <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><InstagramIcon /></span>
-                            @indricollection
+                            @indricollection.mlg
                         </a>
                         <a href="https://www.tiktok.com/@indricollection07" target='_blank'
                             className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
@@ -163,7 +163,7 @@ function Footer() {
                     {[
                         { icon: <ChatIcon />, label: 'Chat', href: '#' },
                         { icon: <MailIcon />, label: 'Email', href: 'mailto:indricollection@gmail.com' },
-                        { icon: <InstagramIcon />, label: 'Instagram', href: '#' },
+                        { icon: <InstagramIcon />, label: 'Instagram', href: 'https://www.instagram.com/indricollection.mlg/' },
                     ].map(({ icon, label, href }) => (
                         <a key={label} href={href} aria-label={label}
                             className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[#11B5F5] hover:border-[#11B5F5] hover:scale-110 transition-all duration-200">
