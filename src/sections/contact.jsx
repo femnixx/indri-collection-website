@@ -41,14 +41,18 @@ export default function Contact() {
               <Mail size={24} className="text-[#00B2FF]" />
               <span className="font-medium">indricollection@gmail.com</span>
             </div>
-            <div className="flex items-center gap-4">
-              <Camera size={24} className="text-[#00B2FF]" />
-              <span className="font-medium">@indricollection</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Music size={24} className="text-[#00B2FF]" />
-              <span className="font-medium">@indricollection07</span>
-            </div>
+            <a href="https://www.instagram.com/indricollection.mlg/" target='_blank'>
+              <div className="flex items-center gap-4">
+                <Camera size={24} className="text-[#00B2FF]" />
+                <span className="font-medium">@indricollection.mlg</span>
+              </div>
+            </a>
+            <a href="https://www.tiktok.com/@indricollection07" target='_blank'>
+              <div className="flex items-center gap-4">
+                <Music size={24} className="text-[#00B2FF]" />
+                <span className="font-medium">@indricollection07</span>
+              </div>
+            </a>
             <div className="mt-8 pt-8 border-t border-gray-100">
               <h4 className="font-semibold text-sm mb-2">Store Hours:</h4>
               <p className="text-xs text-gray-500 font-light leading-loose">
