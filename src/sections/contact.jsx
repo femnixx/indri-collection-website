@@ -11,7 +11,8 @@ export default function Contact() {
           Visit us or reach out through your preferred channel
         </p>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+        <div className="text-left">
+        <div className="inline-flex flex-col md:flex-row items-center gap-12" style={{ display: 'flex', width: 'fit-content', margin: '0 auto' }}>
 
           {/* Store Location Card */}
           <div className="bg-[#10324A] text-white rounded-3xl p-12 text-center w-full max-w-sm flex-shrink-0 flex flex-col items-center">
@@ -65,6 +66,7 @@ export default function Contact() {
             </div>
           </div>
 
+        </div>
         </div>
       </div>
     </section>
