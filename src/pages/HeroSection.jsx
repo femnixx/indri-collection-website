@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import heroBg from '../assets/images/Main.jpg';
-
+import WhatsappIcon from '../assets/Icon.png';
 // Re-triggerable scroll animation hook
 // Returns [ref, isVisible] — resets when element leaves viewport, re-animates on re-entry
 // Re-triggerable scroll animation hook
@@ -158,15 +158,22 @@ function HeroSection() {
                 </svg>
             </div>
 
-            {/* Floating Chat Interaction Element */}
+            {/* Floating WhatsApp Chat Interaction Element */}
             <a
-                href="#"
-                aria-label="Chat with us"
+                href="https://wa.me/6285385353014"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat with us on WhatsApp"
                 style={{ transitionDuration: '500ms', transitionDelay: sectionVisible ? '1000ms' : '0ms' }}
-                className={`fixed bottom-6 right-6 z-50 bg-[#5EA1E4] hover:bg-[#10324A] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95 border border-white/20
+                className={`fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#128C7E] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:-translate-y-1 active:scale-95 border border-white/20
                     ${sectionVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}
             >
-                <span className="text-xl">🧵</span>
+                {/* Replace 'path-to-your-icon.png' with the actual path to your image file */}
+                <img 
+                    src={WhatsappIcon} 
+                    alt="WhatsApp" 
+                    className="w-8 h-8 object-contain" 
+                />
             </a>
         </div>
     );
