@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { statistics } from '../constants';
+import aboutImg from '../assets/images/About.jpg';
 
 export default function AboutUs() {
   const [isVisible, setIsVisible] = useState(false);
@@ -101,8 +102,8 @@ export default function AboutUs() {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                alt="Store Interior"
+                src={aboutImg}
+                alt="Indri Collection Store"
                 className="w-full h-[500px] object-cover"
               />
             </div>

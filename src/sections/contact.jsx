@@ -11,10 +11,10 @@ export default function Contact() {
           Visit us or reach out through your preferred channel
         </p>
 
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-16">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-12">
 
           {/* Store Location Card */}
-          <div className="bg-[#10324A] text-white rounded-3xl p-12 text-center w-full max-w-sm flex flex-col items-center">
+          <div className="bg-[#10324A] text-white rounded-3xl p-12 text-center w-full max-w-sm flex-shrink-0 flex flex-col items-center">
             <div className="bg-[#00B2FF] p-4 rounded-full mb-6">
               <MapPin size={32} />
             </div>
@@ -35,15 +35,22 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Details — self-center so it aligns to the middle of the card */}
-          <div className="flex flex-col gap-6 text-[#10324A] self-center">
+          {/* Contact Details */}
+          <div className="flex flex-col gap-6 text-[#10324A]">
             <div className="flex items-center gap-4">
               <Mail size={24} className="text-[#00B2FF]" />
               <span className="font-medium">indricollection@gmail.com</span>
             </div>
             <div className="flex items-center gap-4">
               <Camera size={24} className="text-[#00B2FF]" />
-              <span className="font-medium">@indricollection</span>
+              <a
+                href="https://www.instagram.com/indricollection.mlg/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium hover:text-[#00B2FF] transition-colors"
+              >
+                @indricollection.mlg
+              </a>
             </div>
             <div className="flex items-center gap-4">
               <Music size={24} className="text-[#00B2FF]" />

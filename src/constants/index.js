@@ -14,30 +14,44 @@ export const statistics = [
 export const reviews = [
   {
     imgURL: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-    customerName: 'Crystal Maiden',
-    customerRole: 'UI/UX Designer',
+    customerName: 'Sari Dewi',
+    customerRole: 'Pelanggan Setia',
     rating: 5,
-    feedback: "I've used other kits, but this one is the best. The attention to detail and usability are truly amazing for all designers. I highly recommend it for any type of project."
-  },
-  {
-    imgURL: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-    customerName: 'Dazzle Healer',
-    customerRole: 'Front End Developer',
-    rating: 5,
-    feedback: "I've used other kits, but this one is the best. The attention to detail and usability are truly amazing for all designers. I highly recommend it for any type of project."
+    feedback: "Baju dari Indri Collection kualitasnya luar biasa! Jahitannya rapi dan bahannya nyaman dipakai seharian. Bangga bisa mendukung usaha yang memberdayakan teman-teman disabilitas."
   },
   {
     imgURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-    customerName: 'Mirana Merci',
-    customerRole: '3D Designer',
+    customerName: 'Rina Kusuma',
+    customerRole: 'Pelanggan',
     rating: 5,
-    feedback: "This UI kit saved me hours of work. It's intuitive, high-quality, and totally worth the price for all design needs. My projects look more professional and appealing now."
+    feedback: "Sudah dua kali pesan baju di sini dan hasilnya selalu memuaskan. Modelnya kekinian, jahitannya kuat, dan pelayanannya ramah. Tidak menyesal belanja di Indri Collection!"
   },
   {
-    imgURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-    customerName: 'Elmosaurus',
-    customerRole: 'Graphic Designer',
+    imgURL: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    customerName: 'Ayu Pratiwi',
+    customerRole: 'Pelanggan Setia',
     rating: 5,
-    feedback: "Amazing work! The color schemes are vibrant, and the icons fit perfectly with all my projects, especially modern UI designs. It makes everything look polished and user-friendly instantly."
+    feedback: "Saya pesan gamis untuk lebaran dan hasilnya melebihi ekspektasi. Detail bordirannya cantik sekali. Senang bisa berkontribusi untuk usaha sosial yang nyata seperti Indri Collection."
+  },
+  {
+    imgURL: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    customerName: 'Fitria Handayani',
+    customerRole: 'Pelanggan',
+    rating: 5,
+    feedback: "Tas rajutnya unik dan berkualitas tinggi. Beli untuk hadiah dan penerimanya sangat suka! Produk Indri Collection selalu jadi pilihan utama saya kalau cari fashion lokal Malang."
+  },
+  {
+    imgURL: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    customerName: 'Melinda Sari',
+    customerRole: 'Pelanggan',
+    rating: 5,
+    feedback: "Kualitas jahitan Indri Collection benar-benar terpercaya. Baju yang saya beli sudah dicuci berkali-kali tapi tetap bagus bentuknya. Akan terus belanja di sini!"
+  },
+  {
+    imgURL: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+    customerName: 'Novia Rahmawati',
+    customerRole: 'Pelanggan Setia',
+    rating: 5,
+    feedback: "Selain kualitasnya bagus, saya suka cerita di balik produknya. Tau bahwa setiap jahitan dibuat oleh teman-teman disabilitas yang berdedikasi membuat setiap pembelian terasa lebih bermakna."
   }
 ];
