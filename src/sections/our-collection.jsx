@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import col1 from '../assets/images/20260608_175357.jpg';
+import col2 from '../assets/images/20260608_180432.jpg';
+import col3 from '../assets/images/20260608_181052.jpg';
+import col4 from '../assets/images/20260608_181417.jpg';
 
 export default function OurCollection() {
   const [isHovered, setIsHovered] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const images = [
-    "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1507680434567-5739c80be1ac?w=600&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1487222444796-f8de9c7d0f5a?w=600&q=80&auto=format&fit=crop",
-  ];
+  const images = [col1, col2, col3, col4];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

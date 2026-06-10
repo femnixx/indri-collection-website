@@ -52,10 +52,10 @@ export default function AboutUs() {
             }}
           >
             <p className="text-gray-700 leading-relaxed font-light">
-              We are a modern fashion brand dedicated to bringing you the finest collection of contemporary clothing that embodies elegance, quality, and timeless style.
+              Indri Collection lahir dari keyakinan sederhana, bahwa pakaian yang indah bisa diciptakan oleh siapa saja, termasuk mereka yang selama ini sering terlupakan.
             </p>
             <p className="text-gray-700 leading-relaxed font-light">
-              Each piece in our collection is carefully curated to ensure you feel confident and stylish, whether you're dressing for a special occasion or everyday elegance.
+              Kami adalah konveksi asal Malang yang dengan bangga memberdayakan teman-teman disabilitas sebagai bagian dari tim kami. Di balik setiap jahitan rapi yang sampai ke tangan Anda, ada kerja keras dan dedikasi mereka yang nyata — bukti bahwa kemampuan tidak pernah mengenal batas.
             </p>
 
             {/* Stats — staggered fade up */}

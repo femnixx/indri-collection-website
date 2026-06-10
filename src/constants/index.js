@@ -7,8 +7,8 @@ export const navLinks = [
 ];
 
 export const statistics = [
-  { value: '500+', label: 'Premium Brands' },
-  { value: '10K+', label: 'Happy Customers' },
+  { value: '100+', label: 'Pelanggan Puas' },
+  { value: '4+', label: 'Tenaga Disabilitas' },
 ];
 
 export const reviews = [
