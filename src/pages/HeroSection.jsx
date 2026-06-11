@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import heroBg from '../assets/images/Main.jpg';
+import heroBg from '../assets/images/Main.webp';
 import WhatsappIcon from '../assets/Icon.png';
 // Re-triggerable scroll animation hook
 // Returns [ref, isVisible] — resets when element leaves viewport, re-animates on re-entry

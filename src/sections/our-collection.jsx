@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import col1 from '../assets/images/20260608_175357.jpg';
-import col2 from '../assets/images/20260608_180432.jpg';
-import col3 from '../assets/images/20260608_181052.jpg';
-import col4 from '../assets/images/20260608_181417.jpg';
+import col1 from '../assets/images/20260608_175357.webp';
+import col2 from '../assets/images/20260608_180432.webp';
+import col3 from '../assets/images/20260608_181052.webp';
+import col4 from '../assets/images/20260608_181417.webp';
 
 export default function OurCollection() {
   const [isHovered, setIsHovered] = useState(null);

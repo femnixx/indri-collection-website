@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { statistics } from '../constants';
-import aboutImg from '../assets/images/About.jpg';
+import aboutImg from '../assets/images/About.webp';
 
 export default function AboutUs() {
   const [isVisible, setIsVisible] = useState(false);
