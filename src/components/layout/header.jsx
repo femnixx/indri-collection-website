@@ -40,6 +40,17 @@ function MobileMenu() {
         return () => { document.body.style.overflow = ''; };
     }, [menuOpen]);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setMenuOpen(false);
+                document.body.style.overflow = '';
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const handleNavClick = (href) => {
         setMenuOpen(false);
         const el = document.querySelector(href);
