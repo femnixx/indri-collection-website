@@ -1,20 +1,22 @@
-import MobileMenu from './components/MobileMenu.jsx'
-import HeroSection from './pages/HeroSection.jsx'
-import { ContactSection, Footer } from './pages/ContactSection.jsx'
-import AboutUs from './sections/about-us'
-import OurCollection from './sections/our-collection'
-import Testimonial from './sections/testimonial'
+import Footer from './components/layout/footer.jsx';
+import MobileMenu from './components/layout/header.jsx';
+import AboutUs from './sections/about-us';
+import Contact from './sections/contact.jsx';
+import Hero from './sections/hero.jsx';
+import OurCollection from './sections/our-collection';
+import Testimonial from './sections/testimonial';
 
 export default function App() {
+  // Styles like min-h-screen, bg-color, text-color, etc., are now handled globally in index.css
   return (
-    <div className="min-h-screen bg-[#F5FCFF] text-[#10324A] antialiased overflow-x-hidden" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="min-h-screen">
       <MobileMenu />
       <main>
-        <HeroSection />
+        <Hero />
         <AboutUs />     
         <OurCollection />
         <Testimonial />
-        <ContactSection />
+        <Contact />
       </main>
       <Footer />
     </div>

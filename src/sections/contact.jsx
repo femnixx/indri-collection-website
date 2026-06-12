@@ -1,74 +1,81 @@
-import React from 'react';
+import { InstagramIcon, MailIcon, TiktokIcon } from '../components/ui/icons';
 import SectionHeader from '../components/ui/section-header';
-import { MapPin, Mail, Camera, Music } from 'lucide-react';
+import { useScrollReveal } from '../hooks/use-scroll-reveal';
+
+function Reveal({ children, delay = 0, className = '' }) {
+    const [ref, visible] = useScrollReveal(0.12);
+    return (
+        <div
+            ref={ref}
+            style={{
+                transitionDuration: '650ms',
+                transitionDelay: visible ? `${delay}ms` : '0ms',
+            }}
+            className={`transition-all ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
+        >
+            {children}
+        </div>
+    );
+}
 
 export default function Contact() {
-  return (
-    <section id="contact" className="w-full py-24 bg-white">
-      <div className="container mx-auto px-4 md:px-8">
-        <SectionHeader title="Contact" highlightedText="Us" />
-        <p className="text-center text-gray-500 mb-16 font-light">
-          Visit us or reach out through your preferred channel
-        </p>
+    return (
+        <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24">
 
-        <div className="text-left">
-        <div className="inline-flex flex-col md:flex-row items-center gap-12" style={{ display: 'flex', width: 'fit-content', margin: '0 auto' }}>
+            {/* Header */}
+            <Reveal className="text-center mb-14">
+                <SectionHeader title="Hubungi" highlightedText="Kami" />
+                <p className="text-gray-400 text-sm md:text-base">
+                    Kunjungi kami atau hubungi melalui kontak di bawah ini
+                </p>
+            </Reveal>
 
-          {/* Store Location Card */}
-          <div className="bg-[#10324A] text-white rounded-3xl p-12 text-center w-full max-w-sm flex-shrink-0 flex flex-col items-center">
-            <div className="bg-[#00B2FF] p-4 rounded-full mb-6">
-              <MapPin size={32} />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Visit Our Store</h3>
-            <p className="text-gray-300 text-sm font-light leading-relaxed mb-10">
-              Jalan Vinolia no 22, Jatimulyo, <br />
-              Lowokwaru, Kota Malang
-            </p>
-            <div className="flex gap-2 opacity-30">
-              <div className="w-8 h-1 bg-white rounded-full"></div>
-              <div className="w-8 h-1 bg-white rounded-full"></div>
-              <div className="w-8 h-1 bg-white rounded-full"></div>
-            </div>
-            <div className="flex gap-2 opacity-30 mt-2">
-              <div className="w-8 h-1 bg-white rounded-full"></div>
-              <div className="w-8 h-1 bg-white rounded-full"></div>
-              <div className="w-8 h-1 bg-white rounded-full"></div>
-            </div>
-          </div>
+            {/* Grid */}
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10">
 
-          {/* Contact Details */}
-          <div className="flex flex-col gap-6 text-[#10324A]">
-            <div className="flex items-center gap-4">
-              <Mail size={24} className="text-[#00B2FF]" />
-              <span className="font-medium">indricollection@gmail.com</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Camera size={24} className="text-[#00B2FF]" />
-              <a
-                href="https://www.instagram.com/indricollection.mlg/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium hover:text-[#00B2FF] transition-colors"
-              >
-                @indricollection.mlg
-              </a>
-            </div>
-            <div className="flex items-center gap-4">
-              <Music size={24} className="text-[#00B2FF]" />
-              <span className="font-medium">@indricollection07</span>
-            </div>
-            <div className="mt-8 pt-8 border-t border-gray-100">
-              <h4 className="font-semibold text-sm mb-2">Store Hours:</h4>
-              <p className="text-xs text-gray-500 font-light leading-loose">
-                Monday – Saturday: 10:00 AM – 8:00 PM<br />
-                Sunday: 11:00 AM – 6:00 PM
-              </p>
-            </div>
-          </div>
+                {/* Store Google Map iframe */}
+                <Reveal delay={150}>
+                    <div className="h-60 w-auto md:w-80 md:h-80 rounded-2xl shadow-xl overflow-hidden border-4 border-white">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d203.2388192792083!2d112.61190915601682!3d-7.938847851201809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7883000f8c5861%3A0xe88d20a59aba2693!2sIndri%20Collection!5e1!3m2!1sen!2sid!4v1781274935669!5m2!1sen!2sid"
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Indri Collection Location"
+                        />
+                    </div>
+                </Reveal>
 
-        </div>
-        </div>
-      </div>
-    </section>
-  );
-}   
+                {/* Contact details */}
+                <Reveal delay={300} className="w-full md:w-auto md:min-w-[280px]">
+                    <div className="flex flex-col gap-5">
+                        <a href="mailto:indricollection@gmail.com"
+                            className="flex items-center gap-3 text-primary hover:text-accent transition-colors duration-200 text-base font-medium group">
+                            <span className="text-accent group-hover:scale-110 transition-transform duration-200"><MailIcon /></span>
+                            <a href="mailto:indricollection@gmail.com">indricollection@gmail.com</a>
+                        </a>
+                        <a href="https://www.instagram.com/indricollection.mlg/" target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-3 text-primary hover:text-accent transition-colors duration-200 text-base font-medium group">
+                            <span className="text-accent group-hover:scale-110 transition-transform duration-200"><InstagramIcon /></span>
+                            @indricollection.mlg
+                        </a>
+                        <a href="https://www.tiktok.com/@indricollection07" target='_blank' rel="noopener noreferrer"
+                            className="flex items-center gap-3 text-primary hover:text-accent transition-colors duration-200 text-base font-medium group">
+                            <span className="text-accent group-hover:scale-110 transition-transform duration-200"><TiktokIcon /></span>
+                            @indricollection07
+                        </a>
+
+                        <div className="border-t border-gray-100 pt-5 mt-1">
+                            <p className="text-primary font-bold text-sm mb-2">Jam Buka:</p>
+                            <p className="text-gray-400 text-sm">Senin – Sabtu: 10:00 – 20:00 WIB</p>
+                            <p className="text-gray-400 text-sm">Minggu: 11:00 – 18:00 WIB</p>
+                        </div>
+                    </div>
+                </Reveal>
+            </div>
+        </section>
+    );
+}

@@ -1,27 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { reviews } from '../constants';
 import { Star } from 'lucide-react';
+import { useScrollReveal } from '../hooks/use-scroll-reveal';
 
 export default function Testimonial() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
+  const [sectionRef, isVisible] = useScrollReveal(0.1);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  // Guarantee at least 20 cards per row regardless of how many reviews exist
   const ensureEnough = (arr) => {
     const MIN = 5;
     const result = [];
     while (result.length < MIN) result.push(...arr);
-    // Double it so the -50% translateX loop is always seamless
     return [...result, ...result];
   };
 
@@ -43,7 +32,7 @@ export default function Testimonial() {
             className="w-12 h-12 rounded-full object-cover"
           />
           <div>
-            <h4 className="font-bold text-[#10324A] text-sm">{review.customerName}</h4>
+            <h4 className="font-bold text-primary text-sm">{review.customerName}</h4>
             <p className="text-xs text-gray-400">{review.customerRole}</p>
           </div>
         </div>
@@ -59,7 +48,7 @@ export default function Testimonial() {
   );
 
   return (
-    <section id="testimonial" ref={sectionRef} className="w-full py-24 bg-[#F5FCFF] overflow-hidden">
+    <section id="testimonial" ref={sectionRef} className="w-full py-24 bg-secondary overflow-hidden">
       <style>{`
         @keyframes marquee-left {
           0%   { transform: translateX(0); }
@@ -76,13 +65,13 @@ export default function Testimonial() {
 
       <div className="container mx-auto px-4 md:px-8">
         <div style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(24px)', transition: 'opacity 0.6s ease, transform 0.6s ease' }}>
-          <SectionHeader title="What Our" highlightedText="Customers Say" />
+          <SectionHeader title="Apa Kata" highlightedText="Pelanggan Kami" />
         </div>
         <p
           className="text-center text-gray-500 mb-16 font-light"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s' }}
         >
-          Hear from those who love our collection
+          Dengarkan dari mereka yang menyukai koleksi kami
         </p>
       </div>
 
