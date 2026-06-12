@@ -2,7 +2,6 @@ import { InstagramIcon, MailIcon, TiktokIcon } from '../components/ui/icons';
 import SectionHeader from '../components/ui/section-header';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
 
-// Wrapper that fades+slides up when visible, resets when out of view
 function Reveal({ children, delay = 0, className = '' }) {
     const [ref, visible] = useScrollReveal(0.12);
     return (
@@ -19,7 +18,6 @@ function Reveal({ children, delay = 0, className = '' }) {
     );
 }
 
-// ── Contact Section ───────────────────────────────────────────────────────────
 export default function Contact() {
     return (
         <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24">
@@ -55,23 +53,23 @@ export default function Contact() {
                 <Reveal delay={300} className="w-full md:w-auto md:min-w-[280px]">
                     <div className="flex flex-col gap-5">
                         <a href="mailto:indricollection@gmail.com"
-                            className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
-                            <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><MailIcon /></span>
+                            className="flex items-center gap-3 text-primary hover:text-accent transition-colors duration-200 text-base font-medium group">
+                            <span className="text-accent group-hover:scale-110 transition-transform duration-200"><MailIcon /></span>
                             <a href="mailto:indricollection@gmail.com">indricollection@gmail.com</a>
                         </a>
                         <a href="https://www.instagram.com/indricollection.mlg/" target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
-                            <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><InstagramIcon /></span>
+                            className="flex items-center gap-3 text-primary hover:text-accent transition-colors duration-200 text-base font-medium group">
+                            <span className="text-accent group-hover:scale-110 transition-transform duration-200"><InstagramIcon /></span>
                             @indricollection.mlg
                         </a>
                         <a href="https://www.tiktok.com/@indricollection07" target='_blank' rel="noopener noreferrer"
-                            className="flex items-center gap-3 text-[#10324A] hover:text-[#11B5F5] transition-colors duration-200 text-base font-medium group">
-                            <span className="text-[#11B5F5] group-hover:scale-110 transition-transform duration-200"><TiktokIcon /></span>
+                            className="flex items-center gap-3 text-primary hover:text-accent transition-colors duration-200 text-base font-medium group">
+                            <span className="text-accent group-hover:scale-110 transition-transform duration-200"><TiktokIcon /></span>
                             @indricollection07
                         </a>
 
                         <div className="border-t border-gray-100 pt-5 mt-1">
-                            <p className="text-[#10324A] font-bold text-sm mb-2">Jam Buka:</p>
+                            <p className="text-primary font-bold text-sm mb-2">Jam Buka:</p>
                             <p className="text-gray-400 text-sm">Senin – Sabtu: 10:00 – 20:00 WIB</p>
                             <p className="text-gray-400 text-sm">Minggu: 11:00 – 18:00 WIB</p>
                         </div>

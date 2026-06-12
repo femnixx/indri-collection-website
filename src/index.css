@@ -1,14 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #10324A;
+  --color-secondary: #F5FCFF;
+  --color-accent: #11B5F5;
+  --color-accent-light: #6ED8FF;
+  --color-highlight: #00B2FF;
+}
+
 @layer base {
-  :root {
-    --color-primary: #10324A;
-    --color-secondary: #F5FCFF;
-    --color-accent: #11B5F5;
-    --color-accent-light: #6ED8FF;
-    --color-text-highlight: #00B2FF;
-  }
 
   html {
     scroll-behavior: smooth;
@@ -16,6 +17,6 @@
   }
 
   body {
-    @apply bg-[#F5FCFF] text-[#10324A] antialiased overflow-x-hidden;
+    @apply bg-secondary text-primary antialiased overflow-x-hidden;
   }
 }

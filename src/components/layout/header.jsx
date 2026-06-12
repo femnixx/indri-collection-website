@@ -59,7 +59,7 @@ function MobileMenu() {
                     ${barVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}
                     ${inHero
                         ? 'bg-transparent'
-                        : 'bg-[#11B5F5] shadow-lg shadow-[#11B5F5]/30'
+                        : 'bg-accent shadow-lg shadow-accent/30'
                     }
                 `}
             >
@@ -99,23 +99,20 @@ function MobileMenu() {
                 </button>
             </nav>
 
-            {/* Spacer so fixed bar doesn't overlap content outside hero */}
+            {/* Spacer */}
             <div className={`transition-all duration-500 ${inHero ? 'h-0' : 'h-15'}`} />
 
-            {/* ── Mobile drawer backdrop ── */}
+            {/*Mobile drawer*/}
             <div
                 onClick={() => setMenuOpen(false)}
                 className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden
                     ${menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             />
-
-            {/* ── Mobile drawer panel ── */}
             <div
-                className={`fixed top-0 right-0 z-50 h-full w-72 bg-[#10324A] shadow-2xl flex flex-col
+                className={`fixed top-0 right-0 z-50 h-full w-72 bg-primary shadow-2xl flex flex-col
                     transition-transform duration-400 ease-out md:hidden
                     ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}
             >
-                {/* Drawer header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
                     <div className="flex items-center gap-2">
                         <img src={logoIndri} alt="Logo Indri" className="w-8 h-8 object-contain" />
@@ -158,10 +155,10 @@ function MobileMenu() {
                     style={{ transitionDelay: menuOpen ? '450ms' : '0ms' }}
                 >
                     <div className="h-px w-full bg-white/10 mb-6" />
-                    <p className="text-[#6ED8FF] text-xs leading-relaxed">
+                    <p className="text-accent-light text-xs leading-relaxed">
                         123 Fashion Avenue<br />New York, NY 10001
                     </p>
-                    <div className="mt-4 w-10 h-1 rounded-full bg-[#11B5F5]" />
+                    <div className="mt-4 w-10 h-1 rounded-full bg-accent" />
                 </div>
             </div>
         </>

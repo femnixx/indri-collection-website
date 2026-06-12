@@ -7,12 +7,10 @@ import { useScrollReveal } from '../hooks/use-scroll-reveal';
 export default function Testimonial() {
   const [sectionRef, isVisible] = useScrollReveal(0.1);
 
-  // Guarantee at least 20 cards per row regardless of how many reviews exist
   const ensureEnough = (arr) => {
     const MIN = 20;
     const result = [];
     while (result.length < MIN) result.push(...arr);
-    // Double it so the -50% translateX loop is always seamless
     return [...result, ...result];
   };
 
@@ -34,7 +32,7 @@ export default function Testimonial() {
             className="w-12 h-12 rounded-full object-cover"
           />
           <div>
-            <h4 className="font-bold text-[#10324A] text-sm">{review.customerName}</h4>
+            <h4 className="font-bold text-primary text-sm">{review.customerName}</h4>
             <p className="text-xs text-gray-400">{review.customerRole}</p>
           </div>
         </div>
@@ -50,7 +48,7 @@ export default function Testimonial() {
   );
 
   return (
-    <section id="testimonial" ref={sectionRef} className="w-full py-24 bg-[#F5FCFF] overflow-hidden">
+    <section id="testimonial" ref={sectionRef} className="w-full py-24 bg-secondary overflow-hidden">
       <style>{`
         @keyframes marquee-left {
           0%   { transform: translateX(0); }

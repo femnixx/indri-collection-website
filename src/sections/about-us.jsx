@@ -11,7 +11,7 @@ export default function AboutUs() {
     <section
       id="about-us"
       ref={sectionRef}
-      className="w-full py-24 bg-[#F5FCFF] relative overflow-hidden"
+      className="w-full py-24 bg-secondary relative overflow-hidden"
     >
       {/* Decorative Circles */}
       <div className="absolute top-10 left-1/2 w-32 h-32 bg-[#DDF4FF] rounded-full -translate-x-1/2 -z-10 opacity-70 blur-xl"></div>
@@ -60,7 +60,7 @@ export default function AboutUs() {
                     transition: `opacity 0.5s ease ${0.4 + index * 0.12}s, transform 0.5s ease ${0.4 + index * 0.12}s`,
                   }}
                 >
-                  <h3 className="text-3xl font-bold text-[#00B2FF] mb-1">{stat.value}</h3>
+                  <h3 className="text-3xl font-bold text-highlight mb-1">{stat.value}</h3>
                   <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
                 </div>
               ))}

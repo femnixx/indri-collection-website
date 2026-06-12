@@ -27,7 +27,7 @@ export default function OurCollection() {
     <section
       id="product"
       ref={sectionRef}
-      className="w-full py-24 bg-[#F5FCFF]"
+      className="w-full py-24 bg-secondary"
       style={{
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(32px)',
