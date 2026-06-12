@@ -18,7 +18,7 @@ export default function Testimonial() {
 
   // Guarantee at least 20 cards per row regardless of how many reviews exist
   const ensureEnough = (arr) => {
-    const MIN = 20;
+    const MIN = 5;
     const result = [];
     while (result.length < MIN) result.push(...arr);
     // Double it so the -50% translateX loop is always seamless
