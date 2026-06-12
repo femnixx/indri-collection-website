@@ -1,9 +1,9 @@
 export const navLinks = [
-  { href: "#home", label: "Home" },
-  { href: "#about-us", label: "Know More" },
-  { href: "#product", label: "Product" },
-  { href: "#testimonial", label: "Testimonial" },
-  { href: "#contact", label: "Contact" },
+  { href: "#home", label: "Beranda" },
+  { href: "#about-us", label: "Tentang Kami" },
+  { href: "#product", label: "Produk" },
+  { href: "#testimonial", label: "Testimoni" },
+  { href: "#contact", label: "Kontak" },
 ];
 
 export const statistics = [
