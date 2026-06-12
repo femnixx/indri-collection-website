@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import logoIndri from '../assets/logo-indri.svg'
 
 const NAV_LINKS = [
-    { label: 'Home', href: '#home' },
-    { label: 'Know More', href: '#about-us' },
-    { label: 'Product', href: '#product' },
-    { label: 'Testimonial', href: '#testimonial' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Beranda', href: '#home' },
+    { label: 'Tentang Kami', href: '#about-us' },
+    { label: 'Produk', href: '#product' },
+    { label: 'Testimoni', href: '#testimonial' },
+    { label: 'Kontak', href: '#contact' },
 ];
 
 function MenuIcon({ open }) {
@@ -62,7 +63,7 @@ function Bar() {
                 className={`
                     fixed top-0 left-0 right-0 z-50
                     flex items-center justify-between
-                    px-6 md:px-16 lg:px-24 py-5
+                    px-6 md:px-16 lg:px-24 py-2
                     transition-all duration-500 ease-out
                     ${barVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}
                     ${inHero
@@ -72,12 +73,13 @@ function Bar() {
                 `}
             >
                 {/* Brand */}
-                <button
+                <div
                     onClick={() => handleNavClick('#home')}
-                    className="text-white font-extrabold text-lg tracking-wide transition-opacity duration-200 hover:opacity-80"
+                    className="flex items-center text-white font-extrabold text-lg tracking-wide transition-opacity duration-200 cursor-pointer"
                 >
-                    Indri Collection
-                </button>
+                    <img src={logoIndri} alt="logo indri" className='h-12 w-auto'/>
+                    <span>Indri Collection</span>
+                </div>
 
                 {/* Desktop links */}
                 <div className="hidden md:flex items-center gap-8">
@@ -85,7 +87,7 @@ function Bar() {
                         <button
                             key={link.label}
                             onClick={() => handleNavClick(link.href)}
-                            className="text-white font-medium text-sm tracking-wide
+                            className="text-white font-medium text-sm tracking-wide cursor-pointer
                                 relative pb-0.5
                                 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0
                                 after:bg-white after:rounded-full after:transition-all after:duration-300
@@ -99,7 +101,7 @@ function Bar() {
                 {/* Mobile hamburger */}
                 <button
                     onClick={() => setMenuOpen((o) => !o)}
-                    aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                    aria-label={menuOpen ? 'Tutup menu' : 'Buka menu'}
                     className="md:hidden p-1 focus:outline-none"
                 >
                     <MenuIcon open={menuOpen} />
@@ -107,7 +109,7 @@ function Bar() {
             </nav>
 
             {/* Spacer so fixed bar doesn't overlap content outside hero */}
-            <div className={`transition-all duration-500 ${inHero ? 'h-0' : 'h-[72px]'}`} />
+            <div className={`transition-all duration-500 ${inHero ? 'h-0' : 'h-15'}`} />
 
             {/* ── Mobile drawer backdrop ── */}
             <div
@@ -124,10 +126,13 @@ function Bar() {
             >
                 {/* Drawer header */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
-                    <span className="text-white font-extrabold text-lg">Indri Collection</span>
+                    <div className="flex items-center gap-2">
+                        <img src={logoIndri} alt="Logo Indri" className="w-8 h-8 object-contain" />
+                        <span className="text-white font-extrabold text-lg">Indri Collection</span>
+                    </div>
                     <button
                         onClick={() => setMenuOpen(false)}
-                        aria-label="Close menu"
+                        aria-label="Tutup menu"
                         className="p-1 text-white/70 hover:text-white transition-colors"
                     >
                         <MenuIcon open={true} />

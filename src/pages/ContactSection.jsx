@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import LogoIndri from '../assets/logo-indri.svg';
+import SectionHeader from '../components/ui/section-header';
 
 // ── Re-triggerable scroll reveal hook ────────────────────────────────────────
 function useScrollReveal(threshold = 0.15) {
@@ -82,42 +84,30 @@ function ContactSection() {
 
             {/* Header */}
             <Reveal className="text-center mb-14">
-                <h2 className="text-4xl md:text-5xl font-bold text-[#10324A]">
-                    Contact <span className="text-[#11B5F5]">Us</span>
-                </h2>
-                <p className="text-gray-400 mt-3 text-sm md:text-base">
-                    Visit us or reach out through your preferred channel
+                <SectionHeader title="Hubungi" highlightedText="Kami" />
+                <p className="text-gray-400 text-sm md:text-base">
+                    Kunjungi kami atau hubungi melalui kontak di bawah ini
                 </p>
             </Reveal>
 
             {/* Grid */}
             <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10">
 
-                {/* Store card */}
-                <a href="https://maps.app.goo.gl/vpvAbASRtMLoPpkT8" target='_blank'>
-                    <Reveal delay={150}>
-                        <div className="bg-[#10324A] rounded-2xl p-8 flex flex-col items-center text-center w-full md:w-64 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                            <div className="w-14 h-14 rounded-full bg-[#11B5F5] flex items-center justify-center mb-5 shadow-lg">
-                                <PinIcon />
-                            </div>
-                            <h3 className="text-white font-bold text-lg mb-2">Visit Our Store</h3>
-                            <p className="text-[#6ED8FF] text-sm leading-relaxed">
-                                Jalan Vinolia no 22, Jatimulyo,<br /> Lowokwaru, Kota Malang
-                            </p>
-                    
-                            {/* Decorative bars */}
-                            <div className="mt-6 flex gap-3">
-                                {[0, 1, 2].map(i => (
-                                    <div key={i} className="flex flex-col gap-1.5">
-                                        {[0, 1, 2].map(j => (
-                                            <div key={j} className="w-8 h-1.5 rounded-full bg-white/10" />
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </Reveal>
-                </a>
+                {/* Store Google Map iframe */}
+                <Reveal delay={150}>
+                    <div className="h-60 w-auto md:w-80 md:h-80 rounded-2xl shadow-xl overflow-hidden border-4 border-white">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d203.2388192792083!2d112.61190915601682!3d-7.938847851201809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7883000f8c5861%3A0xe88d20a59aba2693!2sIndri%20Collection!5e1!3m2!1sen!2sid!4v1781274935669!5m2!1sen!2sid"
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Indri Collection Location"
+                        />
+                    </div>
+                </Reveal>
 
                 {/* Contact details */}
                 <Reveal delay={300} className="w-full md:w-auto md:min-w-[280px]">
@@ -139,9 +129,9 @@ function ContactSection() {
                         </a>
 
                         <div className="border-t border-gray-100 pt-5 mt-1">
-                            <p className="text-[#10324A] font-bold text-sm mb-2">Store Hours:</p>
-                            <p className="text-gray-400 text-sm">Monday – Saturday: 10:00 AM – 8:00 PM</p>
-                            <p className="text-gray-400 text-sm">Sunday: 11:00 AM – 6:00 PM</p>
+                            <p className="text-[#10324A] font-bold text-sm mb-2">Jam Buka:</p>
+                            <p className="text-gray-400 text-sm">Senin – Sabtu: 10:00 – 20:00 WIB</p>
+                            <p className="text-gray-400 text-sm">Minggu: 11:00 – 18:00 WIB</p>
                         </div>
                     </div>
                 </Reveal>
@@ -156,8 +146,11 @@ function Footer() {
         <footer className="bg-[#10324A] text-white">
             <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                    <p className="font-bold text-lg">Indri Collection</p>
-                    <p className="text-[#6ED8FF] text-sm mt-1">Jalan Vinolia no 22, Jatimulyo, Lowokwaru, Kota Malang</p>
+                    <div className="flex items-center mb-2">
+                        <img className="w-10 h-10 object-contain" src={LogoIndri} alt="Logo"/>
+                        <span className="font-bold text-xl">Indri Collection</span>
+                    </div>
+                    <p className="text-[#6ED8FF] text-sm mt-2">Jalan Vinolia no 22, Jatimulyo, Lowokwaru, Kota Malang</p>
                 </div>
                 <div className="flex items-center gap-3">
                     {[
