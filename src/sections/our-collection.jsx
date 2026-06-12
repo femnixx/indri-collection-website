@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import SectionHeader from '../components/ui/section-header';
 import {
   Carousel,
@@ -7,6 +7,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '../components/ui/carousel';
+import { useScrollReveal } from '../hooks/use-scroll-reveal';
+
 const imageModules = import.meta.glob('../assets/images/collection-*.{webp,png,jpg,jpeg}', { eager: true });
 
 const images = Object.keys(imageModules)
@@ -19,19 +21,7 @@ const images = Object.keys(imageModules)
 
 export default function OurCollection() {
   const [isHovered, setIsHovered] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.15 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const [sectionRef, isVisible] = useScrollReveal(0.15);
 
   return (
     <section

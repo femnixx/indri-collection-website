@@ -1,36 +1,39 @@
-import React from 'react';
-import { MessageCircle, Mail, Globe } from 'lucide-react';
+import LogoIndri from '../../assets/logo-indri.svg';
+import { contactInfo, socialLinks } from '../../constants';
+import { ChatIcon, InstagramIcon, MailIcon } from '../ui/icons';
 
 export default function Footer() {
-  return (
-    <footer id="footer" className="w-full py-8 bg-[#10324A] text-white">
-      <div className="container mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-        
-        {/* Brand Name & Copyright */}
-        <div>
-          <h4 className="font-bold text-lg mb-1">Indri Collection</h4>
-          <p className="text-xs text-gray-400 font-light">123 Fashion Avenue, New York, NY 10001</p>
-        </div>
+    const getIcon = (id) => {
+        switch (id) {
+            case 'whatsapp': return <ChatIcon />;
+            case 'email': return <MailIcon />;
+            case 'instagram': return <InstagramIcon />;
+            default: return null;
+        }
+    };
 
-        {/* Copyright center */}
-        <div className="text-xs text-gray-400 font-light">
-          © {new Date().getFullYear()} Indri Collection. All rights reserved.
-        </div>
-        
-        {/* Social Icons */}
-        <div className="flex items-center gap-4">
-          <a href="https://wa.me/6285385353014" target='_blank' className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-            <MessageCircle size={16} />
-          </a>
-          <a href="mailto:indricollection@gmail.com" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-            <Mail size={16} />
-          </a>
-          <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
-            <Globe size={16} />
-          </a>
-        </div>
-
-      </div>
-    </footer>
-  );
+    return (
+        <footer className="bg-[#10324A] text-white">
+            <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <div className="flex items-center mb-2">
+                        <img className="w-10 h-10 object-contain" src={LogoIndri} alt="Logo"/>
+                        <span className="font-bold text-xl">Indri Collection</span>
+                    </div>
+                    <p className="text-[#6ED8FF] text-sm mt-2">{contactInfo.address}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    {socialLinks.filter(link => ['whatsapp', 'email', 'instagram'].includes(link.id)).map(({ id, label, href }) => (
+                        <a key={label} href={href} aria-label={label} target='_blank' rel="noopener noreferrer"
+                            className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[#11B5F5] hover:border-[#11B5F5] hover:scale-110 transition-all duration-200">
+                            {getIcon(id)}
+                        </a>
+                    ))}
+                </div>
+            </div>
+            <div className="border-t border-white/10 py-4 text-center">
+                <p className="text-[#6ED8FF]/60 text-xs">© 2026 Indri Collection. All rights reserved.</p>
+            </div>
+        </footer>
+    );
 }

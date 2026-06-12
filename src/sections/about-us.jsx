@@ -1,22 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { statistics } from '../constants';
 import aboutImg from '../assets/images/About.webp';
+import { useScrollReveal } from '../hooks/use-scroll-reveal';
 
 export default function AboutUs() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.15 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const [sectionRef, isVisible] = useScrollReveal(0.15);
 
   return (
     <section

@@ -1,20 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { reviews } from '../constants';
 import { Star } from 'lucide-react';
+import { useScrollReveal } from '../hooks/use-scroll-reveal';
 
 export default function Testimonial() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const [sectionRef, isVisible] = useScrollReveal(0.1);
 
   // Guarantee at least 20 cards per row regardless of how many reviews exist
   const ensureEnough = (arr) => {
