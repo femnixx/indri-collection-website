@@ -38,7 +38,7 @@ export default function AboutUs() {
             transition: 'opacity 0.6s ease, transform 0.6s ease',
           }}
         >
-          <SectionHeader title="About" highlightedText="Us" />
+          <SectionHeader title="Tentang" highlightedText="Kami" />
         </div>
 
         <div className="flex flex-col md:flex-row gap-16 items-center mt-12">

@@ -76,13 +76,13 @@ export default function Testimonial() {
 
       <div className="container mx-auto px-4 md:px-8">
         <div style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(24px)', transition: 'opacity 0.6s ease, transform 0.6s ease' }}>
-          <SectionHeader title="What Our" highlightedText="Customers Say" />
+          <SectionHeader title="Apa Kata" highlightedText="Pelanggan Kami" />
         </div>
         <p
           className="text-center text-gray-500 mb-16 font-light"
           style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(16px)', transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s' }}
         >
-          Hear from those who love our collection
+          Dengarkan dari mereka yang menyukai koleksi kami
         </p>
       </div>
 
