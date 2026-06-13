@@ -10,13 +10,48 @@
 }
 
 @layer base {
-
   html {
     scroll-behavior: smooth;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    /* Enables momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
   body {
     @apply bg-secondary text-primary antialiased overflow-x-hidden;
   }
+
+  /* Prevent layout thrash from animations — only promote elements
+     that are actively animating, not everything on the page */
+  .will-animate {
+    will-change: opacity, transform;
+  }
+}
+
+/* ── Marquee keyframes (testimonial) ───────────────────────────────────────── */
+@keyframes marquee-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.row-left {
+  display: flex;
+  width: max-content;
+  animation: marquee-left 35s linear infinite;
+  /* GPU-composited — doesn't affect surrounding scroll */
+  will-change: transform;
+}
+.row-right {
+  display: flex;
+  width: max-content;
+  animation: marquee-right 35s linear infinite;
+  will-change: transform;
+}
+.row-left:hover,
+.row-right:hover {
+  animation-play-state: paused;
 }
