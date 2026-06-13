@@ -45,6 +45,7 @@ export default function OurCollection() {
             opts={{
               align: "start",
               loop: true,
+              watchDrag: true,
             }}
             className="w-full"
           >
