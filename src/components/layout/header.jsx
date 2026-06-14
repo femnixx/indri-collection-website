@@ -74,11 +74,25 @@ export default function Header() {
   }, []);
 
   const handleNavClick = (href) => {
+    // 1. Close the mobile menu sidebar
     setMenuOpen(false);
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
 
+    // 2. Keep the delay so mobile styles can unlock safely
+    const delay = menuOpen ? 30 : 0;
+
+    setTimeout(() => {
+      if (href === '#home') {
+        // If it's home, cleanly glide straight to the absolute top of the document
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // For all other sections, find the element and scroll it into view
+        const el = document.querySelector(href);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }, delay);
+  };
   return (
     <>
       <nav className={`
