@@ -62,8 +62,7 @@ export const contactInfo = {
 };
 
 export const businessHours = [
-  { days: "Senin – Sabtu", hours: "10:00 – 20:00 WIB" },
-  { days: "Minggu", hours: "11:00 – 18:00 WIB" }
+  { days: "Senin – Sabtu", hours: "09:00 – 16:00 WIB" },
 ];
 
 export const socialLinks = [
