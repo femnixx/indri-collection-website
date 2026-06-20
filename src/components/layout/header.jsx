@@ -51,7 +51,7 @@ export default function Header() {
       document.body.style.width     = '';
       document.body.style.overflow  = '';
       delete document.body.dataset.scrollY;
-      if (scrollY) window.scrollTo(0, scrollY);
+      if (scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
     }
     return () => {
       const scrollY = parseInt(document.body.dataset.scrollY || '0', 10);
@@ -60,7 +60,7 @@ export default function Header() {
       document.body.style.width     = '';
       document.body.style.overflow  = '';
       delete document.body.dataset.scrollY;
-      if (scrollY) window.scrollTo(0, scrollY);
+      if (scrollY) window.scrollTo({ top: scrollY, behavior: 'instant' });
     };
   }, [menuOpen]);
 
