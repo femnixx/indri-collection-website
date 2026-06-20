@@ -70,19 +70,19 @@ export default function Contact() {
                 href={link.href}
                 target={link.id !== 'email' ? '_blank' : undefined}
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 text-primary hover:text-accent
-                  transition-colors duration-200 text-base font-medium group"
+                className="group flex items-center gap-3 text-primary hover:-translate-y-1 transition-all duration-200 text-base font-medium"
               >
-                {/* Icon: translate up on hover instead of scale — no layout recalc */}
-                <span className="text-accent group-hover:-translate-y-0.5 transition-transform duration-200">
+                <span className="text-primary group-hover:text-accent transition-colors duration-200">
                   {ICON[link.id]}
                 </span>
-                {link.label}
+                <span className="group-hover:text-accent transition-colors duration-200">
+                  {link.label}
+                </span>
               </a>
             ))}
 
             <div className="border-t border-gray-100 pt-5 mt-1">
-              <p className="text-primary font-bold text-sm mb-2">Jam Buka:</p>
+              <p className="text-primary font-bold text-sm mb-2">Jam Operasional</p>
               {businessHours.map((h) => (
                 <p key={h.days} className="text-gray-400 text-sm">
                   {h.days}: {h.hours}
