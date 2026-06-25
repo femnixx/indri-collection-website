@@ -22,7 +22,7 @@ function Hero() {
       ref={sectionRef}
       className="relative w-full min-h-screen overflow-hidden bg-primary bg-fabric-matrix"
     >
-      {/* Background image — no scale animation, just fade. Scale forces full repaint on mobile. */}
+      {/* Background image — no scale animation, just fade. Scale forces full repaint on mobile */}
       <img
         src={heroBg}
         alt="Hero background"
