@@ -114,7 +114,7 @@ export default function Header() {
             <button key={link.label} onClick={() => handleNavClick(link.href)}
               className="text-white font-medium text-sm tracking-wide cursor-pointer
                 relative pb-0.5
-                after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0
+                after:absolute after:bottom-0 after:left-0 after:h-[0.5] after:w-0
                 after:bg-white after:rounded-full after:transition-all after:duration-300
                 hover:after:w-full hover:-translate-y-0.5 transition-transform duration-200">
               {link.label}

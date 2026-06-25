@@ -84,7 +84,7 @@ function Hero() {
           </p>
 
           <div style={fadeUp('640ms').style} className="flex flex-col sm:flex-row items-center gap-4">
-            <a href="#about-us"
+            <a href="#product"
               className="inline-flex items-center gap-2 bg-accent hover:-translate-y-1 hover:shadow-accent/30
                 border-2 border-transparent active:scale-95 text-white text-sm md:text-base font-bold
                 px-8 py-3.5 rounded-full transition-all duration-300 shadow-lg">
