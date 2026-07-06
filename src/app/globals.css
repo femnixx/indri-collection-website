@@ -1,0 +1,68 @@
+/* 1. Import Font dan Tailwind harus di paling atas */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+@import "tailwindcss";
+
+/* 2. Gunakan blok @theme untuk mendaftarkan variabel kustom */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary: #10324A;
+  --color-secondary: #F5FCFF;
+  --color-accent: #11B5F5;
+  --color-accent-light: #6ED8FF;
+  --color-highlight: #00B2FF;
+}
+
+/* 3. Gunakan @layer base untuk gaya global */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body {
+    /* Menerapkan font dan warna dari theme */
+    @apply font-sans antialiased overflow-x-hidden;
+    background-color: var(--color-secondary);
+    color: var(--color-primary);
+  }
+
+  .will-animate {
+    will-change: opacity, transform;
+  }
+}
+
+/* 4. Marquee Keyframes & Utilities */
+@keyframes marquee-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.row-left, .row-right {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.row-left { animation: marquee-left 35s linear infinite; }
+.row-right { animation: marquee-right 35s linear infinite; }
+
+.row-left:hover,
+.row-right:hover {
+  animation-play-state: paused;
+}
+
+/* Tambahkan ini di bagian bawah globals.css */
+.hamburger-line {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Animasi untuk menu terbuka */
+.menu-open .line-1 { transform: translateY(8px) rotate(45deg); }
+.menu-open .line-2 { opacity: 0; }
+.menu-open .line-3 { transform: translateY(-8px) rotate(-45deg); }

@@ -1,3 +1,5 @@
+"use client";
+
 import { InstagramIcon, MailIcon, TiktokIcon } from '../components/ui/icons';
 import SectionHeader from '../components/ui/section-header';
 import { socialLinks, businessHours, contactInfo } from '../constants';

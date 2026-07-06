@@ -1,5 +1,4 @@
-import LogoIndri from '../../assets/logo-indri.svg';
-import { contactInfo, socialLinks } from '../../constants';
+import { contactInfo, socialLinks } from '@/constants'; 
 import { ChatIcon, InstagramIcon, MailIcon } from '../ui/icons';
 
 export default function Footer() {
@@ -17,7 +16,7 @@ export default function Footer() {
             <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
                     <div className="flex items-center mb-2">
-                        <img className="w-10 h-10 object-contain" src={LogoIndri} alt="Logo"/>
+                        <img className="w-10 h-10 object-contain" src={'/logo-indri.svg'} alt="Logo"/>
                         <span className="font-bold text-xl">Indri Collection</span>
                     </div>
                     <p className="text-accent-light text-sm mt-2">{contactInfo.address}</p>

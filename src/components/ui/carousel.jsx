@@ -1,5 +1,7 @@
+"use client";
+
 import * as React from "react"
-import useEmblaCarousel from "embla-carousel-react";
+import useEmblaCarousel from "embla-carousel-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -70,7 +72,7 @@ function Carousel({
 
     return () => {
       api?.off("select", onSelect)
-    };
+    }
   }, [api, onSelect])
 
   return (
@@ -96,7 +98,7 @@ function Carousel({
         {children}
       </div>
     </CarouselContext.Provider>
-  );
+  )
 }
 
 function CarouselContent({
@@ -118,7 +120,7 @@ function CarouselContent({
         )}
         {...props} />
     </div>
-  );
+  )
 }
 
 function CarouselItem({
@@ -138,7 +140,7 @@ function CarouselItem({
         className
       )}
       {...props} />
-  );
+  )
 }
 
 function CarouselPrevious({
@@ -148,6 +150,11 @@ function CarouselPrevious({
   ...props
 }) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <Button
@@ -157,13 +164,13 @@ function CarouselPrevious({
       className={cn("absolute touch-manipulation rounded-full", orientation === "horizontal"
         ? "top-1/2 -left-12 -translate-y-1/2"
         : "-top-12 left-1/2 -translate-x-1/2 rotate-90", className)}
-      disabled={!canScrollPrev}
+      disabled={mounted ? !canScrollPrev : false}
       onClick={scrollPrev}
       {...props}>
       <ChevronLeftIcon />
       <span className="sr-only">Previous slide</span>
     </Button>
-  );
+  )
 }
 
 function CarouselNext({
@@ -173,6 +180,11 @@ function CarouselNext({
   ...props
 }) {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <Button
@@ -182,13 +194,14 @@ function CarouselNext({
       className={cn("absolute touch-manipulation rounded-full", orientation === "horizontal"
         ? "top-1/2 -right-12 -translate-y-1/2"
         : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90", className)}
-      disabled={!canScrollNext}
+      // 💡 Perbaikan: Mengembalikan false saat SSR agar struktur DOM klop tanpa atribut disabled
+      disabled={mounted ? !canScrollNext : false}
       onClick={scrollNext}
       {...props}>
       <ChevronRightIcon />
       <span className="sr-only">Next slide</span>
     </Button>
-  );
+  )
 }
 
-export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, useCarousel };
+export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, useCarousel }

@@ -1,5 +1,6 @@
+"use client";
+
 import { useState, useEffect } from 'react';
-import logoIndri from '../../assets/logo-indri.svg';
 import { navLinks } from '../../constants';
 
 const BREAKPOINT = 768; // matches Tailwind md
@@ -105,7 +106,7 @@ export default function Header() {
       `}>
         <div onClick={() => handleNavClick('#home')}
           className="flex items-center text-white font-extrabold text-lg tracking-wide cursor-pointer">
-          <img src={logoIndri} alt="logo indri" className="h-12 w-auto" />
+          <img src={"/logo-indri.svg"} alt="logo indri" className="h-12 w-auto" />
           <span>Indri Collection</span>
         </div>
 
@@ -143,7 +144,7 @@ export default function Header() {
 
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <img src={logoIndri} alt="Logo Indri" className="w-8 h-8 object-contain" />
+            <img src={"/logo-indri.svg"} alt="Logo Indri" className="w-8 h-8 object-contain" />
             <span className="text-white font-extrabold text-lg">Indri Collection</span>
           </div>
           <button onClick={() => setMenuOpen(false)} aria-label="Tutup menu"
