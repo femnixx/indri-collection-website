@@ -1,62 +1,66 @@
-import { Metadata } from 'next';
-import './globals.css';
+import React from "react";
+import { Metadata } from "next";
+import "./globals.css"; 
 
-// 1. Tambahkan domain produksi Anda di sini agar OG Image bisa terdeteksi
-const DOMAIN = 'https://indri-collection-website.vercel.app';
+// Import komponen Analytics & Speed Insights dari Vercel
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+
+// Import wrapper pengondisian rute admin
+import LayoutContentWrapper from "../components/layout/LayoutContentWrapper";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(DOMAIN),
-  title: {
-    default: 'Indri Collection | Konveksi Inklusif & Jasa Jahit Malang',
-    template: '%s | Indri Collection',
-  },
-  description: 'Indri Collection adalah usaha konveksi pemberdayaan disabilitas di Malang, menghasilkan ragam pakaian dengan kualitas jahitan premium yang penuh ketelitian.',
+  title: "Indri Collection | Konveksi Inklusif & Jasa Jahit Malang",
+  description:
+    "Indri Collection adalah usaha konveksi pemberdayaan disabilitas di Malang, menghasilkan ragam pakaian dengan kualitas jahitan premium yang penuh ketelitian.",
   keywords: [
-    'konveksi malang', 
-    'pemberdayaan disabilitas', 
-    'gamis malang', 
-    'tunik', 
-    'hijab', 
-    'Indri Collection', 
-    'jahitan', 
-    'permak baju malang', 
-    'jahit baju malang', 
-    'weave for change'
+    "konveksi malang",
+    "pemberdayaan disabilitas",
+    "gamis malang",
+    "tunik",
+    "hijab",
+    "Indri Collection",
+    "jahitan",
+    "permak baju malang",
+    "jahit baju malang",
+    "weave for change",
   ],
-  authors: [{ name: 'Indri Collection' }],
-  creator: 'Indri Collection',
-  openGraph: {
-    title: 'Indri Collection | Konveksi Inklusif & Jasa Jahit Malang',
-    description: 'Konveksi pemberdayaan disabilitas di Malang dengan kualitas jahitan premium.',
-    url: DOMAIN,
-    siteName: 'Indri Collection',
-    images: [
-      {
-        url: '/about.webp', // Pastikan file ini ada di folder public/
-        width: 1200,
-        height: 630,
-        alt: 'Indri Collection - Konveksi Inklusif Malang',
-      },
-    ],
-    locale: 'id_ID',
-    type: 'website',
+  verification: {
+    google: "4Mpk9pVH-tT6SMvlwWbd0sVrOVJeJxX58kyJZ9SGTZ4",
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Indri Collection | Konveksi Inklusif Malang',
-    description: 'Konveksi pemberdayaan disabilitas di Malang dengan kualitas jahitan premium.',
-    images: ['/about.webp'],
+  alternates: {
+    canonical: "https://indri-collection-website.vercel.app",
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
   },
-  verification: {
-    google: '4Mpk9pVH-tT6SMvlwWbd0sVrOVJeJxX58kyJZ9SGTZ4',
+  openGraph: {
+    title: "Indri Collection | Konveksi Inklusif & Jasa Jahit Malang",
+    description:
+      "Indri Collection adalah usaha konveksi pemberdayaan disabilitas di Malang, menghasilkan ragam pakaian dengan kualitas jahitan premium yang penuh ketelitian.",
+    url: "https://indri-collection-website.vercel.app",
+    siteName: "Indri Collection",
+    images: [
+      {
+        url: "/about.webp",
+        width: 1200,
+        height: 630,
+        alt: "Indri Collection Workshop",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Indri Collection | Konveksi Inklusif Malang",
+    description:
+      "Usaha konveksi pemberdayaan disabilitas di Malang dengan kualitas jahitan premium.",
+    images: ["/about.webp"],
+  },
+  icons: {
+    icon: "/favicon.ico",
   },
 };
 
@@ -66,9 +70,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className="scroll-smooth">
-      <body className="antialiased text-slate-900 bg-white">
-        {children}
+    <html lang="id">
+      <body className="min-h-screen bg-slate-50 antialiased text-slate-800">
+        
+        {/* Aturan rute otomatis dieksekusi di dalam wrapper ini */}
+        <LayoutContentWrapper>
+          {children}
+        </LayoutContentWrapper>
+
+        {/* Tracking tools tetap berjalan global di latar belakang */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

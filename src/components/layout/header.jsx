@@ -35,8 +35,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // iOS-safe scroll lock — overflow:hidden alone causes iOS Safari to jump to top.
-  // We use position:fixed + save/restore scrollY instead.
+  // iOS-safe scroll lock
   useEffect(() => {
     if (menuOpen) {
       const scrollY = window.scrollY;
@@ -65,7 +64,6 @@ export default function Header() {
     };
   }, [menuOpen]);
 
-  // Auto-close at desktop width (fixes responsive-tester scroll bug)
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= BREAKPOINT) setMenuOpen(false);
@@ -75,25 +73,19 @@ export default function Header() {
   }, []);
 
   const handleNavClick = (href) => {
-    // 1. Close the mobile menu sidebar
     setMenuOpen(false);
-
-    // 2. Keep the delay so mobile styles can unlock safely
     const delay = menuOpen ? 30 : 0;
 
     setTimeout(() => {
       if (href === '#home') {
-        // If it's home, cleanly glide straight to the absolute top of the document
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        // For all other sections, find the element and scroll it into view
         const el = document.querySelector(href);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
       }
     }, delay);
   };
+
   return (
     <>
       <nav className={`
@@ -112,12 +104,16 @@ export default function Header() {
 
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <button key={link.label} onClick={() => handleNavClick(link.href)}
+            <button 
+              key={link.label} 
+              onClick={() => handleNavClick(link.href)}
               className="text-white font-medium text-sm tracking-wide cursor-pointer
-                relative pb-0.5
-                after:absolute after:bottom-0 after:left-0 after:h-[0.5] after:w-0
+                relative pb-1
+                [transform:translateZ(0)] backface-hidden antialiased
+                after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0
                 after:bg-white after:rounded-full after:transition-all after:duration-300
-                hover:after:w-full hover:-translate-y-0.5 transition-transform duration-200">
+                hover:after:w-full hover:-translate-y-0.5 transition-transform duration-200"
+            >
               {link.label}
             </button>
           ))}
@@ -130,14 +126,15 @@ export default function Header() {
         </button>
       </nav>
 
-      <div className={`transition-all duration-500 ${inHero ? 'h-0' : 'h-15'}`} />
+      <div className={`transition-all duration-500 bg-transparent ${inHero ? 'h-0' : 'h-16'}`} />
 
-      {/* Backdrop — NO backdrop-blur, it is very expensive on mobile GPUs */}
+      {/* Backdrop */}
       <div onClick={() => setMenuOpen(false)}
         className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 md:hidden
           ${menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       />
 
+      {/* Sidebar Drawer */}
       <div className={`fixed top-0 right-0 z-50 h-full w-72 bg-primary shadow-2xl flex flex-col
         transition-transform duration-400 ease-out md:hidden
         ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
