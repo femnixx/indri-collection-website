@@ -1,16 +1,14 @@
-import WhatsappIcon from '../assets/Icon.png';
-import heroBg from '../assets/images/Main.webp';
+"use client";
+
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
 
-// Animates once on load — no re-trigger needed for hero
 function Hero() {
   const [sectionRef, sectionVisible] = useScrollReveal(0.05);
 
   const fadeUp = (delay = '0ms') => ({
     style: {
-      opacity:    sectionVisible ? 1 : 0,
-      transform:  sectionVisible ? 'translateY(0)' : 'translateY(24px)',
-      // Use individual property transitions — cheaper than transition-all
+      opacity: sectionVisible ? 1 : 0,
+      transform: sectionVisible ? 'translateY(0)' : 'translateY(24px)',
       transition: `opacity 700ms ease ${sectionVisible ? delay : '0ms'},
                    transform 700ms ease ${sectionVisible ? delay : '0ms'}`,
     },
@@ -22,12 +20,12 @@ function Hero() {
       ref={sectionRef}
       className="relative w-full min-h-screen overflow-hidden bg-primary bg-fabric-matrix"
     >
-      {/* Background image — no scale animation, just fade. Scale forces full repaint on mobile */}
+      {/* Background image: Path is relative to the 'public' folder */}
       <img
-        src={heroBg}
+        src="/images/Main.webp"
         alt="Hero background"
         style={{
-          opacity:    sectionVisible ? 1 : 0,
+          opacity: sectionVisible ? 1 : 0,
           transition: 'opacity 1000ms ease',
         }}
         className="absolute inset-0 w-full h-full object-cover object-center"
@@ -36,18 +34,18 @@ function Hero() {
       {/* Overlay */}
       <div
         style={{
-          opacity:    sectionVisible ? 1 : 0,
+          opacity: sectionVisible ? 1 : 0,
           transition: 'opacity 800ms ease 100ms',
         }}
         className="absolute inset-0 bg-primary/60"
       />
 
-      {/* Decorative elements — hidden on mobile to reduce GPU layers */}
+      {/* Decorative elements */}
       <div
         className="hidden md:block absolute right-[5%] top-[10%] text-[160px] opacity-10 pointer-events-none select-none"
         style={{
-          opacity:    sectionVisible ? 0.1 : 0,
-          transform:  sectionVisible ? 'rotate(0deg)' : 'rotate(-20deg) translateX(12px)',
+          opacity: sectionVisible ? 0.1 : 0,
+          transform: sectionVisible ? 'rotate(0deg)' : 'rotate(-20deg) translateX(12px)',
           transition: 'opacity 1000ms ease 200ms, transform 1000ms ease 200ms',
         }}
       >
@@ -57,7 +55,7 @@ function Hero() {
       <div
         className="hidden md:block absolute right-[-100px] bottom-[-50px] w-[450px] h-[450px] bg-[#5EA1E4]/10 rounded-full border-4 border-dashed border-[#5EA1E4]/20 pointer-events-none"
         style={{
-          opacity:    sectionVisible ? 1 : 0,
+          opacity: sectionVisible ? 1 : 0,
           transition: 'opacity 900ms ease 150ms',
         }}
       />
@@ -65,7 +63,6 @@ function Hero() {
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-center h-full min-h-screen px-6 md:px-16 lg:px-24 pt-24 pb-24">
         <div className="max-w-xl">
-
           <h1 style={fadeUp('300ms').style}
             className="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-2 tracking-tight">
             Temukan
@@ -91,14 +88,13 @@ function Hero() {
               Jelajahi Koleksi
             </a>
           </div>
-
         </div>
       </div>
 
       {/* Wave divider */}
       <div style={{
-          opacity:    sectionVisible ? 1 : 0,
-          transform:  sectionVisible ? 'translateY(0)' : 'translateY(8px)',
+          opacity: sectionVisible ? 1 : 0,
+          transform: sectionVisible ? 'translateY(0)' : 'translateY(8px)',
           transition: 'opacity 700ms ease 500ms, transform 700ms ease 500ms',
         }}
         className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-10">
@@ -112,14 +108,14 @@ function Hero() {
       <a href="https://wa.me/6285385353014" target="_blank" rel="noopener noreferrer"
         aria-label="Chat via WhatsApp"
         style={{
-          opacity:    sectionVisible ? 1 : 0,
-          transform:  sectionVisible ? 'scale(1)' : 'scale(0.5)',
+          opacity: sectionVisible ? 1 : 0,
+          transform: sectionVisible ? 'scale(1)' : 'scale(0.5)',
           transition: 'opacity 500ms ease 900ms, transform 500ms ease 900ms',
         }}
         className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#128C7E] text-white
           w-14 h-14 rounded-full flex items-center justify-center shadow-xl
           hover:-translate-y-1 active:scale-95 border border-white/20 transition-colors duration-300">
-        <img src={WhatsappIcon} alt="WhatsApp" className="w-8 h-8 object-contain" />
+        <img src="/Icon.png" alt="WhatsApp" className="w-8 h-8 object-contain" />
       </a>
     </div>
   );

@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import SectionHeader from '../components/ui/section-header';
 import { reviews } from '../constants';
