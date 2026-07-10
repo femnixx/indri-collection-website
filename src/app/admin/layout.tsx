@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import AdminSidebar from "./components/AdminSidebar";
+// Impor instance Supabase Client yang sudah kita buat sebelumnya
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AdminRootLayout({
   children,
@@ -14,16 +16,24 @@ export default function AdminRootLayout({
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // Jika mengakses halaman login, bypass pengecekan hak akses di layout utama
     if (pathname === "/admin/login") {
       setIsAuthorized(true);
       return;
     }
 
-    const checkAuth = () => {
-      const adminAccess = sessionStorage.getItem("admin_access");
-      if (adminAccess === "true") {
-        setIsAuthorized(true);
-      } else {
+    const checkAuth = async () => {
+      try {
+        // Mendapatkan session JWT aktif secara asinkron dari Supabase Auth SDK
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          setIsAuthorized(true);
+        } else {
+          setIsAuthorized(false);
+          router.replace("/admin/login");
+        }
+      } catch (err) {
         setIsAuthorized(false);
         router.replace("/admin/login");
       }
@@ -32,6 +42,7 @@ export default function AdminRootLayout({
     checkAuth();
   }, [router, pathname]);
 
+  // Render kondisi loading state saat status token otentikasi sedang diverifikasi
   if (isAuthorized === null) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 text-gray-600">
@@ -43,6 +54,7 @@ export default function AdminRootLayout({
     );
   }
 
+  // Jika di halaman login, langsung render halamannya tanpa membungkus dengan shell AdminSidebar
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
