@@ -11,6 +11,7 @@ import {
   Menu,
   X
 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -23,11 +24,20 @@ export default function AdminSidebar() {
     { name: "Pengaturan Panel", href: "/admin/settings", icon: Settings },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  try {
+    // 🛑 Beritahu server Supabase untuk menghancurkan token JWT sesi ini
+    await supabase.auth.signOut();
+    
+    // Opsional: Hapus sisa-sisa state sessionStorage lama jika ingin memastikan bersih total
     sessionStorage.removeItem("admin_access");
+    
+    // Pindahkan rute pengguna kembali ke halaman login admin
     router.replace("/admin/login");
-  };
-
+  } catch (error) {
+    console.error("Gagal melakukan proses keluar sesi:", error);
+  }
+};
   return (
     <>
       {/* 📱 Mobile Toggle Bar */}

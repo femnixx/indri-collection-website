@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+// Import instance supabase client yang baru dibuat
+import { supabase } from "@/lib/supabaseClient"; 
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -13,35 +15,49 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Cek apakah admin sudah login sebelumnya menggunakan session Supabase resmi
   useEffect(() => {
-    const adminAccess = sessionStorage.getItem("admin_access");
-    if (adminAccess === "true") {
-      router.replace("/admin");
-    }
+    const checkActiveSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace("/admin");
+      }
+    };
+    checkActiveSession();
   }, [router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    const adminEmail = "admin@indricollection.com";
-    const adminPassword = "SuperAdminPassword123";
+    try {
+      // Eksekusi autentikasi langsung ke server Supabase Auth
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-    setTimeout(() => {
-      if (email === adminEmail && password === adminPassword) {
-        sessionStorage.setItem("admin_access", "true");
-        router.replace("/admin");
-      } else {
-        setError("Email atau password administrator salah.");
+      if (authError) {
+        // Jika ada error (email salah, password salah, atau user tidak ditemukan)
+        setError(authError.message || "Email atau password administrator salah.");
         setIsLoading(false);
+        return;
       }
-    }, 1000);
+
+      if (data?.session) {
+        // Berhasil login, arahkan langsung ke Admin Dashboard
+        router.replace("/admin");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan sistem saat mencoba login.");
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Elemen Dekoratif Latar Belakang (Aksen Biru Khas Indri Collection) */}
+      {/* Elemen Dekoratif Latar Belakang */}
       <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
       <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
 
@@ -56,7 +72,7 @@ export default function AdminLoginPage() {
 
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 z-10">
         
-        {/* Branding Head — Menggunakan Logo SVG Resmi */}
+        {/* Branding Head */}
         <div className="text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-2.5 shadow-md shadow-blue-500/20">
             <img src="/logo-indri.svg" alt="Logo Indri" className="h-full w-full object-contain brightness-0 invert" />
