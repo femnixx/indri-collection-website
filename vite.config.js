@@ -9,13 +9,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-<<<<<<< HEAD
-})
-=======
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
 })
->>>>>>> bc207850476d2bcf910d8720205df7d223491e7d
