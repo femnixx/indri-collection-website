@@ -26,20 +26,32 @@ function formatDate(dateStr: string): string {
   return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
 }
 
+const RANGE_TO_GA4_DATE: Record<string, string> = {
+  "3d": "3daysAgo",
+  "7d": "7daysAgo",
+  "30d": "30daysAgo",
+  "90d": "90daysAgo",
+  "365d": "365daysAgo",
+};
+
 // Returns null if credentials are missing or call fails.
-export async function getGA4AnalyticsData(): Promise<AnalyticsData | null> {
+export async function getGA4AnalyticsData(range: string='30d'): Promise<AnalyticsData | null> {
   if (!client || !process.env.GA_PROPERTY_ID) {
     console.warn('GA4 credentials or Property ID missing. Running in mock/fallback mode.');
     return null;
   }
 
   const propertyId = process.env.GA_PROPERTY_ID;
+  const startDate = RANGE_TO_GA4_DATE[range] ?? "30daysAgo";
+  const days = parseInt(range) || 30;
+  const prevEndDate = `${days + 1}daysAgo`;
+  const prevStartDate = `${days * 2}daysAgo`;
 
   try {
     // 1. Fetch Traffic Trend (Daily active users and page views for last 30 days)
     const [trendResponse] = await client.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      dateRanges: [{ startDate, endDate: 'today' }],
       dimensions: [{ name: 'date' }],
       metrics: [
         { name: 'activeUsers' },
@@ -62,7 +74,7 @@ export async function getGA4AnalyticsData(): Promise<AnalyticsData | null> {
     // 2. Fetch Popular Pages
     const [pagesResponse] = await client.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      dateRanges: [{ startDate, endDate: 'today' }],
       dimensions: [
         { name: 'pagePath' },
         { name: 'pageTitle' }
@@ -87,7 +99,7 @@ export async function getGA4AnalyticsData(): Promise<AnalyticsData | null> {
     // 3. Fetch Traffic Sources
     const [sourcesResponse] = await client.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      dateRanges: [{ startDate, endDate: 'today' }],
       dimensions: [{ name: 'sessionSourceMedium' }],
       metrics: [{ name: 'activeUsers' }],
       limit: 5,
@@ -122,7 +134,7 @@ export async function getGA4AnalyticsData(): Promise<AnalyticsData | null> {
     // Current period (last 30 days)
     const [currentSummary] = await client.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+      dateRanges: [{ startDate, endDate: 'today' }],
       metrics: [
         { name: 'activeUsers' },
         { name: 'screenPageViews' },
@@ -134,7 +146,7 @@ export async function getGA4AnalyticsData(): Promise<AnalyticsData | null> {
     // Previous period (60 days ago to 31 days ago)
     const [previousSummary] = await client.runReport({
       property: `properties/${propertyId}`,
-      dateRanges: [{ startDate: '60daysAgo', endDate: '31daysAgo' }],
+      dateRanges: [{ startDate: prevStartDate, endDate: prevEndDate }],
       metrics: [
         { name: 'activeUsers' },
         { name: 'screenPageViews' },
@@ -211,8 +223,8 @@ export async function getGA4AnalyticsData(): Promise<AnalyticsData | null> {
       trafficSources,
       popularPages
     };
-  } catch (error) {
-    console.error('Error fetching data from Google Analytics 4 API:', error);
+  } catch (error: any) {
+    console.error('Error fetching data from Google Analytics 4 API:', error.message);
     return null;
   }
 }
