@@ -70,8 +70,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body className="min-h-screen bg-slate-50 antialiased text-slate-800">
+    // Tambahkan suppressHydrationWarning di sini
+    <html lang="id" suppressHydrationWarning>
+      {/* Tambahkan suppressHydrationWarning juga di body */}
+      <body 
+        className="min-h-screen bg-slate-50 antialiased text-slate-800"
+        suppressHydrationWarning
+      >
         
         {/* Aturan rute otomatis dieksekusi di dalam wrapper ini */}
         <LayoutContentWrapper>
