@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { navLinks } from '../../constants';
+import { Button } from "../ui/button";
+import Link from 'next/link';
 
 const BREAKPOINT = 768; // matches Tailwind md
 
@@ -117,6 +119,18 @@ export default function Header() {
               {link.label}
             </button>
           ))}
+          <Link href={"/admin/"}>
+            <Button 
+              variant="default" 
+              className={`w-28 h-10 font-bold transition-colors duration-300 ${
+                inHero 
+                  ? "bg-accent text-white hover:bg-accent/90" 
+                  : "bg-white text-accent hover:bg-gray-50"
+              }`}
+            >
+              Masuk
+            </Button>
+          </Link>
         </div>
 
         <button onClick={() => setMenuOpen(o => !o)}
