@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Mail, MessageSquare, Clock, Save, CheckCircle2 } from "lucide-react";
 
-// 📸 Custom inline SVG matching Lucide's stroke and bounding box guidelines
+
 const InstagramIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +22,6 @@ const InstagramIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
 );
 
 export default function AdminSettingsPage() {
-  // Hardcoded initial values matching the landing page context
   const [formData, setFormData] = useState({
     email: "indricollection@gmail.com",
     instagram: "@indricollection.mlg",
@@ -50,7 +49,7 @@ export default function AdminSettingsPage() {
     setTimeout(() => {
       setIsSaving(false);
       setShowSuccessToast(true);
-      
+
       // Auto-hide success message after 3 seconds
       setTimeout(() => setShowSuccessToast(false), 3000);
     }, 800);
@@ -203,9 +202,8 @@ export default function AdminSettingsPage() {
           <button
             type="submit"
             disabled={isSaving}
-            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-600/10 hover:bg-blue-700 transition-all cursor-pointer ${
-              isSaving ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-600/10 hover:bg-blue-700 transition-all cursor-pointer ${isSaving ? "opacity-70 cursor-not-allowed" : ""
+              }`}
           >
             {isSaving ? (
               <>

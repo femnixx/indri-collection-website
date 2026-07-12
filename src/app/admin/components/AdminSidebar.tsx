@@ -19,7 +19,7 @@ export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { name: "Dashboard Analitik", href: "/admin", icon: LayoutDashboard },
+    { name: "Dashboard Analitik", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Kelola Koleksi Foto", href: "/admin/products", icon: Images },
     { name: "Pengaturan Panel", href: "/admin/settings", icon: Settings },
   ];

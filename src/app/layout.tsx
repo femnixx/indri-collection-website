@@ -6,6 +6,9 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
+//import script ga4 analytics
+import Script from "next/script";
+
 // Import wrapper pengondisian rute admin
 import LayoutContentWrapper from "../components/layout/LayoutContentWrapper";
 
@@ -70,14 +73,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // Tambahkan suppressHydrationWarning di sini
     <html lang="id" suppressHydrationWarning>
-      {/* Tambahkan suppressHydrationWarning juga di body */}
-      <body 
+      <body
         className="min-h-screen bg-slate-50 antialiased text-slate-800"
         suppressHydrationWarning
       >
-        
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=G-2CG3BPV3HG`}
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-2CG3BPV3HG');
+          `}
+        </Script>
+
         {/* Aturan rute otomatis dieksekusi di dalam wrapper ini */}
         <LayoutContentWrapper>
           {children}
