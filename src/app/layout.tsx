@@ -73,13 +73,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body className="min-h-screen bg-slate-50 antialiased text-slate-800">
+    <html lang="id" suppressHydrationWarning>
+      <body
+        className="min-h-screen bg-slate-50 antialiased text-slate-800"
+        suppressHydrationWarning
+      >
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=G-2CG3BPV3HG`}
         />
-        
+
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -88,7 +91,7 @@ export default function RootLayout({
             gtag('config', 'G-2CG3BPV3HG');
           `}
         </Script>
-        
+
         {/* Aturan rute otomatis dieksekusi di dalam wrapper ini */}
         <LayoutContentWrapper>
           {children}
