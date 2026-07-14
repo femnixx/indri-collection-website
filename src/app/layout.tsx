@@ -1,15 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
 import "./globals.css"; 
-
-// Import komponen Analytics & Speed Insights dari Vercel
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-
-//import script ga4 analytics
 import Script from "next/script";
-
-// Import wrapper pengondisian rute admin
 import LayoutContentWrapper from "../components/layout/LayoutContentWrapper";
 
 export const metadata: Metadata = {
@@ -27,12 +21,10 @@ export const metadata: Metadata = {
     "permak baju malang",
     "jahit baju malang",
     "weave for change",
+    "konveksi murah malang"
   ],
-  verification: {
-    google: "4Mpk9pVH-tT6SMvlwWbd0sVrOVJeJxX58kyJZ9SGTZ4",
-  },
   alternates: {
-    canonical: "https://indri-collection-website.vercel.app",
+    canonical: "/",
   },
   robots: {
     index: true,
@@ -42,7 +34,7 @@ export const metadata: Metadata = {
     title: "Indri Collection | Konveksi Inklusif & Jasa Jahit Malang",
     description:
       "Indri Collection adalah usaha konveksi pemberdayaan disabilitas di Malang, menghasilkan ragam pakaian dengan kualitas jahitan premium yang penuh ketelitian.",
-    url: "https://indri-collection-website.vercel.app",
+    url: "https://indricollection.my.id",
     siteName: "Indri Collection",
     images: [
       {
@@ -91,13 +83,9 @@ export default function RootLayout({
             gtag('config', 'G-2CG3BPV3HG');
           `}
         </Script>
-
-        {/* Aturan rute otomatis dieksekusi di dalam wrapper ini */}
         <LayoutContentWrapper>
           {children}
         </LayoutContentWrapper>
-
-        {/* Tracking tools tetap berjalan global di latar belakang */}
         <Analytics />
         <SpeedInsights />
       </body>
