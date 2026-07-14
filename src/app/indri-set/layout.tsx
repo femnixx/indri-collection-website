@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import AdminSidebar from "./components/AdminSidebar"; // Pastikan path-nya bener
+import AdminSidebar from "./components/AdminSidebar";
 import { supabaseAuth } from "@/lib/supabaseClient";
 
 export default function AdminLayout({
@@ -15,7 +15,7 @@ export default function AdminLayout({
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (pathname === "/admin/login") {
+    if (pathname === "/indri-set/login") {
       setIsAuthorized(true);
       return;
     }
@@ -28,11 +28,11 @@ export default function AdminLayout({
           setIsAuthorized(true);
         } else {
           setIsAuthorized(false);
-          router.replace("/admin/login");
+          router.replace("/indri-set/login");
         }
       } catch (err) {
         setIsAuthorized(false);
-        router.replace("/admin/login");
+        router.replace("/indri-set/login");
       }
     };
 
@@ -51,7 +51,7 @@ export default function AdminLayout({
     );
   }
 
-  if (pathname === "/admin/login") {
+  if (pathname === "/indri-set/login") {
     return <>{children}</>;
   }
 

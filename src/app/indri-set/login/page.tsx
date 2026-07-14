@@ -18,7 +18,7 @@ export default function AdminLoginPage() {
     const checkActiveSession = async () => {
       const { data: { session } } = await supabaseAuth.auth.getSession();
       if (session) {
-        router.replace("/admin");
+        router.replace("/indri-set");
       }
     };
     checkActiveSession();
@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
       }
 
       if (data?.session) {
-        router.replace("/admin");
+        router.replace("/indri-set");
       }
     } catch (err) {
       setError("Terjadi kesalahan sistem saat mencoba login.");
