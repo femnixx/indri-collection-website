@@ -12,7 +12,7 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   const productsWithUrls = data.map((product) => {
-\    if (product.image_url) {
+    if (product.image_url) {
       const { data: publicUrlData } = supabaseData.storage
         .from('product-images') 
         .getPublicUrl(product.image_url);
