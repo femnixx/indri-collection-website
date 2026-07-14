@@ -3,15 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Images, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Images,
+  Settings,
   LogOut,
   Menu,
   X
 } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseAuth } from "@/lib/supabaseClient";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -19,20 +19,15 @@ export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { name: "Dashboard Analitik", href: "/admin/dashboard", icon: LayoutDashboard },
-    { name: "Kelola Koleksi Foto", href: "/admin/products", icon: Images },
-    { name: "Pengaturan Panel", href: "/admin/settings", icon: Settings },
+    { name: "Dashboard Analitik", href: "/indri-set/dashboard", icon: LayoutDashboard },
+    { name: "Kelola Koleksi Foto", href: "/indri-set/products", icon: Images },
+    { name: "Pengaturan Panel", href: "/indri-set/settings", icon: Settings },
   ];
 
   const handleLogout = async () => {
   try {
-    // 🛑 Beritahu server Supabase untuk menghancurkan token JWT sesi ini
-    await supabase.auth.signOut();
-    
-    // Opsional: Hapus sisa-sisa state sessionStorage lama jika ingin memastikan bersih total
+    await supabaseAuth.auth.signOut();
     sessionStorage.removeItem("admin_access");
-    
-    // Pindahkan rute pengguna kembali ke halaman login admin
     router.replace("/admin/login");
   } catch (error) {
     console.error("Gagal melakukan proses keluar sesi:", error);
@@ -40,7 +35,6 @@ export default function AdminSidebar() {
 };
   return (
     <>
-      {/* 📱 Mobile Toggle Bar */}
       <div className="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200 md:hidden sticky top-0 z-40 w-full shadow-sm">
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 p-1.5 flex items-center justify-center font-black text-white text-xs">
@@ -55,7 +49,6 @@ export default function AdminSidebar() {
 
       {isOpen && <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/20 z-40 md:hidden backdrop-blur-xs" />}
 
-      {/* 🧭 Sidebar Component */}
       <aside className={`
         fixed top-0 bottom-0 left-0 z-50 md:sticky md:top-0
         w-64 bg-white border-r border-gray-100 flex flex-col justify-between h-screen shrink-0
