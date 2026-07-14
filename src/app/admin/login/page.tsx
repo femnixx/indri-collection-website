@@ -4,8 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-// Import instance supabase client yang baru dibuat
-import { supabase } from "@/lib/supabaseClient"; 
+import { supabaseAuth } from "@/lib/supabaseClient"; 
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -15,10 +14,9 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cek apakah admin sudah login sebelumnya menggunakan session Supabase resmi
   useEffect(() => {
     const checkActiveSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseAuth.auth.getSession();
       if (session) {
         router.replace("/admin");
       }
@@ -32,21 +30,18 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      // Eksekusi autentikasi langsung ke server Supabase Auth
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabaseAuth.auth.signInWithPassword({
         email: email,
         password: password,
       });
 
       if (authError) {
-        // Jika ada error (email salah, password salah, atau user tidak ditemukan)
         setError(authError.message || "Email atau password administrator salah.");
         setIsLoading(false);
         return;
       }
 
       if (data?.session) {
-        // Berhasil login, arahkan langsung ke Admin Dashboard
         router.replace("/admin");
       }
     } catch (err) {
@@ -57,11 +52,9 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Elemen Dekoratif Latar Belakang */}
       <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
       <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
 
-      {/* Tombol Kembali ke Beranda */}
       <Link 
         href="/"
         className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors group"
@@ -72,7 +65,6 @@ export default function AdminLoginPage() {
 
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 z-10">
         
-        {/* Branding Head */}
         <div className="text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-2.5 shadow-md shadow-blue-500/20">
             <img src="/logo-indri.svg" alt="Logo Indri" className="h-full w-full object-contain brightness-0 invert" />
@@ -94,7 +86,6 @@ export default function AdminLoginPage() {
           )}
 
           <div className="space-y-4">
-            {/* Input Email */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
                 Email Address
@@ -114,7 +105,6 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            {/* Input Password */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
                 Password
@@ -142,7 +132,6 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          {/* Tombol Submit */}
           <div className="pt-2">
             <button
               type="submit"

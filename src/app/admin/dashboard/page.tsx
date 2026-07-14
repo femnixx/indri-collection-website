@@ -91,7 +91,15 @@ export default function AdminDashboardPage() {
                   ))}
                 </div>
               </div>
-              <LineChart data={data.trafficTrend} />
+              {data.trafficTrend && data.trafficTrend.length > 0 ? (
+                <LineChart data={data.trafficTrend} />
+              ) : (
+                <div className="flex h-64 items-center justify-center border-2 border-dashed border-gray-100 rounded-xl mt-4 bg-gray-50/50">
+                  <p className="text-sm text-gray-400 font-light">
+                    Belum ada data pengunjung untuk rentang waktu ini.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Traffic Sources */}
