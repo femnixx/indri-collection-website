@@ -1,18 +1,20 @@
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import { InstagramIcon, MailIcon, TiktokIcon } from '../components/ui/icons';
 import SectionHeader from '../components/ui/section-header';
-import { socialLinks, businessHours, contactInfo } from '../constants';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
+import { settingsRepository } from '@/repositories/settingsRepository';
+import { contactInfo } from '../constants'; // Tetap di-import hanya untuk data statis seperti mapUrl
 
-// Icon map — keeps JSX clean, avoids a switch statement
+// Icon map — dipetakan berdasarkan ID dari data database
 const ICON = {
   email:     <MailIcon />,
   instagram: <InstagramIcon />,
   tiktok:    <TiktokIcon />,
 };
 
-// Single Reveal wrapper — one IntersectionObserver per section is enough
+// Single Reveal wrapper
 function Reveal({ children, delay = 0, className = '' }) {
   const [ref, visible] = useScrollReveal(0.1);
   return (
@@ -32,8 +34,40 @@ function Reveal({ children, delay = 0, className = '' }) {
 }
 
 export default function Contact() {
-  // Only email/instagram/tiktok have icons — filter out whatsapp (it's the FAB)
-  const contactRows = socialLinks.filter((l) => ICON[l.id]);
+  // 💡 Mengubah state menjadi inisialisasi JavaScript vanilla (tanpa generic type)
+  const [settings, setSettings] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 🔄 Fetch data dari Supabase via Repository saat komponen dipasang
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const data = await settingsRepository.fetchPublicSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error("Gagal mengambil data dari Supabase:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadSettings();
+  }, []);
+
+  // Tampilkan loading spinner sederhana saat menunggu data
+  if (isLoading || !settings) {
+    return (
+      <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24 flex justify-center items-center min-h-[350px]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </section>
+    );
+  }
+
+  // Rekonstruksi baris kontak berdasarkan data dinamis Supabase
+  const contactRows = [
+    { id: 'email', href: `mailto:${settings.email_address}`, label: settings.email_address },
+    { id: 'instagram', href: settings.instagram_url, label: 'Instagram' },
+    { id: 'tiktok', href: settings.tiktok_url, label: 'TikTok' },
+  ];
 
   return (
     <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24">
@@ -66,6 +100,16 @@ export default function Contact() {
         {/* Contact details */}
         <Reveal delay={240} className="w-full md:w-auto md:min-w-[280px]">
           <div className="flex flex-col gap-5">
+            
+            {/* 📍 Alamat Fisik Dinamis dari Supabase */}
+            <div className="flex flex-col text-primary text-base font-medium mb-1">
+              <span className="font-bold text-sm text-gray-900 mb-1">Alamat Toko</span>
+              <span className="text-gray-500 font-normal text-sm leading-relaxed max-w-[280px]">
+                {settings.address}
+              </span>
+            </div>
+
+            {/* 📱 Sosial Media Dinamis dari Supabase */}
             {contactRows.map((link) => (
               <a
                 key={link.id}
@@ -83,14 +127,14 @@ export default function Contact() {
               </a>
             ))}
 
+            {/* 🕒 Jam Operasional Dinamis dari Supabase */}
             <div className="border-t border-gray-100 pt-5 mt-1">
               <p className="text-primary font-bold text-sm mb-2">Jam Operasional</p>
-              {businessHours.map((h) => (
-                <p key={h.days} className="text-gray-400 text-sm">
-                  {h.days}: {h.hours}
-                </p>
-              ))}
+              <p className="text-gray-400 text-sm leading-relaxed">
+                {settings.operational_hours}
+              </p>
             </div>
+
           </div>
         </Reveal>
       </div>

@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-// Import instance supabase client yang baru dibuat
 import { supabase } from "@/lib/supabaseClient"; 
 
 export default function AdminLoginPage() {
@@ -15,39 +14,31 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cek apakah admin sudah login sebelumnya menggunakan session Supabase resmi
-  useEffect(() => {
-    const checkActiveSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.replace("/admin");
-      }
-    };
-    checkActiveSession();
-  }, [router]);
-
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // Eksekusi autentikasi langsung ke server Supabase Auth
+      // 1. Otentikasi kredensial langsung ke Supabase Auth Server
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
       });
 
       if (authError) {
-        // Jika ada error (email salah, password salah, atau user tidak ditemukan)
         setError(authError.message || "Email atau password administrator salah.");
         setIsLoading(false);
         return;
       }
 
+      // 2. Jika sesi valid, cookies otomatis tersimpan oleh createBrowserClient.
+      // Cukup arahkan rute dan paksa Next.js melakukan server-refresh untuk membaca cookie baru.
       if (data?.session) {
-        // Berhasil login, arahkan langsung ke Admin Dashboard
-        router.replace("/admin");
+        router.push("/admin");
+        router.refresh();
+      } else {
+        setIsLoading(false);
       }
     } catch (err) {
       setError("Terjadi kesalahan sistem saat mencoba login.");
@@ -57,11 +48,9 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Elemen Dekoratif Latar Belakang */}
       <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
       <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
 
-      {/* Tombol Kembali ke Beranda */}
       <Link 
         href="/"
         className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors group"
@@ -71,8 +60,6 @@ export default function AdminLoginPage() {
       </Link>
 
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 z-10">
-        
-        {/* Branding Head */}
         <div className="text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-2.5 shadow-md shadow-blue-500/20">
             <img src="/logo-indri.svg" alt="Logo Indri" className="h-full w-full object-contain brightness-0 invert" />
@@ -85,7 +72,6 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Form Login */}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           {error && (
             <div className="rounded-xl bg-red-50 p-4 border border-red-100 text-sm text-red-600 font-medium">
@@ -94,7 +80,6 @@ export default function AdminLoginPage() {
           )}
 
           <div className="space-y-4">
-            {/* Input Email */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
                 Email Address
@@ -114,7 +99,6 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            {/* Input Password */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
                 Password
@@ -142,22 +126,20 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          {/* Tombol Submit */}
           <div className="pt-2">
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-2xl bg-blue-600 py-3.5 px-4 text-sm font-bold text-white transition-all shadow-lg shadow-blue-600/15 hover:bg-blue-500 hover:shadow-blue-500/20 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+              className="group relative flex w-full justify-center rounded-2xl bg-blue-600 py-3.5 px-4 text-sm font-bold text-white transition-all shadow-lg shadow-blue-600/15 hover:bg-blue-500 hover:shadow-blue-500/20 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
             >
               {isLoading ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
                 "Masuk ke Sistem"
               )}
             </button>
           </div>
         </form>
-
       </div>
     </div>
   );
