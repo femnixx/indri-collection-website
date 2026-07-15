@@ -1,135 +1,103 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { Upload, Trash2, RefreshCw, Plus } from "lucide-react";
-
-interface CollectionItem {
-  id: number;
-  title: string;
-  imageUrl: string;
-}
+import React, { useState, useEffect, useRef } from "react";
+import { Folder, Plus, FolderPlus, Loader2, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ManageCollectionPage() {
-  // Mock entries mirroring the "Koleksi Kami" section
-  const [collection, setCollection] = useState<CollectionItem[]>([
-    { id: 1, title: "Tas Rajut Biru Cerah", imageUrl: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=600" },
-    { id: 2, title: "Sling Bag Rajut Khaki", imageUrl: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=600" },
-  ]);
-
+  const [categories, setCategories] = useState<any[]>([]);
+  const [activeCategory, setActiveCategory] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const replaceInputRef = useRef<HTMLInputElement>(null);
-  const [activeReplaceId, setActiveReplaceId] = useState<number | null>(null);
 
-  const handleUploadNewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const fakeUrl = URL.createObjectURL(file);
-      
-      const newItem: CollectionItem = {
-        id: Date.now(),
-        title: `Koleksi Baru #${collection.length + 1}`,
-        imageUrl: fakeUrl
-      };
+  useEffect(() => { fetchCategories(); }, []);
 
-      setCollection([...collection, newItem]);
+  const fetchCategories = async () => {
+    const { data } = await supabase.from("categories").select("*").order("name");
+    setCategories(data || []);
+    if (data && data.length > 0) setActiveCategory(data[0]);
+  };
+
+  useEffect(() => {
+    if (activeCategory) fetchProducts(activeCategory.id);
+  }, [activeCategory]);
+
+  const fetchProducts = async (catId: string) => {
+    const { data } = await supabase.from("products").select("*").eq("category_id", catId);
+    setProducts(data || []);
+  };
+
+  const addCategory = async () => {
+    const name = prompt("Nama Folder Baru:");
+    if (!name) return;
+    const { data } = await supabase.from("categories").insert({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }).select().single();
+    if (data) {
+      setCategories([...categories, data]);
+      if (!activeCategory) setActiveCategory(data);
     }
   };
 
-  const handleReplaceImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0] && activeReplaceId !== null) {
-      const file = e.target.files[0];
-      const fakeUrl = URL.createObjectURL(file);
-
-      setCollection(collection.map(item => 
-        item.id === activeReplaceId ? { ...item, imageUrl: fakeUrl } : item
-      ));
-      setActiveReplaceId(null);
-    }
-  };
-
-  const handleRemoveItem = (id: number) => {
-    if(confirm("Apakah Anda yakin ingin menghapus foto ini dari galeri depan?")) {
-      setCollection(collection.filter(item => item.id !== id));
-    }
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0] || !activeCategory) return;
+    setIsUploading(true);
+    const file = e.target.files[0];
+    const { data: storageData } = await supabase.storage.from("products").upload(`${Date.now()}_${file.name}`, file);
+    const { data: { publicUrl } } = supabase.storage.from("products").getPublicUrl(storageData!.path);
+    await supabase.from("products").insert({ title: file.name, image_url: publicUrl, category_id: activeCategory.id });
+    fetchProducts(activeCategory.id);
+    setIsUploading(false);
   };
 
   return (
-    <div className="space-y-8">
-      {/* 🌟 Header Container without redundant top actions */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
-          Kelola Koleksi Foto
-        </h1>
-        <p className="mt-1.5 text-sm text-gray-500 font-light">
-          Perbarui, ganti, atau hapus gambar item yang tampil di section <span className="font-semibold text-blue-600">"Koleksi Kami"</span> di landing page.
-        </p>
-      </div>
-
-      {/* Hidden Native Device Inputs */}
-      <input type="file" ref={fileInputRef} onChange={handleUploadNewImage} accept="image/*" className="hidden" />
-      <input type="file" ref={replaceInputRef} onChange={handleReplaceImage} accept="image/*" className="hidden" />
-
-      {/* 🖼️ Main Management Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {collection.map((item) => (
-          <div 
-            key={item.id}
-            className="group relative bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col"
-          >
-            {/* Image Box */}
-            <div className="relative aspect-square w-full bg-gray-50 overflow-hidden border-b border-gray-50">
-              <img 
-                src={item.imageUrl} 
-                alt={item.title} 
-                className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-              />
-              {/* Overlay Trigger Actions */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
-                <button 
-                  onClick={() => {
-                    setActiveReplaceId(item.id);
-                    replaceInputRef.current?.click();
-                  }}
-                  className="p-2.5 bg-white text-gray-700 rounded-xl hover:bg-gray-100 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-transform active:scale-95 cursor-pointer"
-                >
-                  <RefreshCw className="h-4 w-4 text-blue-600" />
-                  Ganti Gbr
-                </button>
-                <button 
-                  onClick={() => handleRemoveItem(item.id)}
-                  className="p-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-sm transition-transform active:scale-95 cursor-pointer"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Label and Info Card */}
-            <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
-              <div>
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                  Live on Landing Page
-                </span>
-                <h4 className="text-sm font-bold text-gray-800 mt-1.5 line-clamp-2">
-                  {item.title}
-                </h4>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* ➕ The Dedicated and Unified Upload Anchor Slot */}
-        <div 
-          onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center p-6 text-center hover:bg-gray-50/50 hover:border-blue-300 transition-all cursor-pointer group min-h-[280px]"
-        >
-          <div className="h-12 w-12 rounded-xl bg-gray-50 group-hover:bg-blue-50 flex items-center justify-center mb-3 transition-colors">
-            <Upload className="h-5 w-5 text-gray-400 group-hover:text-blue-500" />
-          </div>
-          <p className="text-sm font-bold text-gray-700">Tambah Foto Koleksi</p>
-          <p className="text-xs text-gray-400 max-w-[160px] mx-auto mt-1 font-light">Klik untuk memilih berkas dari perangkat Anda</p>
+    <div className="flex flex-col gap-6 p-4 h-full">
+      {/* Sidebar yang sekarang selalu muncul di atas */}
+      <div className="w-full space-y-4">
+        <button onClick={addCategory} className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 font-bold text-sm">
+          <FolderPlus size={18} /> Buat Folder
+        </button>
+        
+        {/* Scrollable category list */}
+        <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
+          {categories.map((cat) => (
+            <button 
+              key={cat.id} 
+              onClick={() => setActiveCategory(cat)} 
+              className={`flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold whitespace-nowrap ${activeCategory?.id === cat.id ? "bg-blue-50 text-blue-700" : "text-gray-500 bg-gray-50 hover:bg-gray-100"}`}
+            >
+              <Folder size={18} /> {cat.name}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Konten Utama */}
+      <div className="flex-1">
+        {categories.length === 0 ? (
+          <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl text-gray-400 p-6">
+            <AlertCircle size={48} className="mb-4" />
+            <p className="font-bold text-center">Belum ada folder koleksi.</p>
+            <p className="text-sm text-center">Silakan buat folder di atas untuk memulai.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h1 className="text-xl font-extrabold">{activeCategory?.name}</h1>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {products.map((item) => (
+                <div key={item.id} className="bg-white border rounded-2xl p-2 shadow-sm">
+                  <img src={item.image_url} className="w-full aspect-square object-cover rounded-xl" />
+                  <p className="text-xs font-bold p-2 truncate">{item.title}</p>
+                </div>
+              ))}
+              <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 cursor-pointer hover:border-blue-400 text-gray-500 min-h-[150px]">
+                {isUploading ? <Loader2 className="animate-spin" /> : <Plus size={32} />}
+                <p className="text-xs font-bold mt-2">Tambah Foto</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
     </div>
   );
 }
