@@ -1,5 +1,5 @@
-import { productRepository } from "@/repositories/productRepository";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { productRepository } from "@/repositories/productRepository";
 
 export const productService = {
   async addProduct(
@@ -15,16 +15,14 @@ export const productService = {
   ) {
     const supabase = await createSupabaseServerClient();
     
-    // 1. Fetch category name to use as folder path
+    // 1. Fetch category
     const { data: category, error: catError } = await supabase
       .from("categories")
       .select("name")
       .eq("id", categoryId)
       .single();
 
-    if (catError || !category) {
-      throw new Error("Kategori tidak ditemukan.");
-    }
+    if (catError || !category) throw new Error("Kategori tidak ditemukan.");
 
     const folderName = category.name.replace(/\s+/g, '_').toLowerCase();
     let imageUrl = "";
@@ -33,7 +31,7 @@ export const productService = {
     if (file) {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${folderName}/${fileName}`; // Uses category name as folder
+      const filePath = `${folderName}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('products')
@@ -43,16 +41,28 @@ export const productService = {
 
       const { data } = supabase.storage.from('products').getPublicUrl(filePath);
       imageUrl = data.publicUrl;
+      console.log("File uploaded, URL generated:", imageUrl);
+    } else {
+      throw new Error("File is required.");
     }
 
-    // 3. Save to DB
-    return await productRepository.create({ 
-      name: productData.name,
-      description: productData.description || "",
-      category_id: categoryId, // Keep ID for database relationship
-      is_published: productData.is_published,
-      image_url: imageUrl,
-      created_by: userId
-    });
+    // 3. Save to DB with explicit await
+    try {
+      const result = await productRepository.create({ 
+        name: productData.name,
+        description: productData.description || "",
+        category_id: categoryId,
+        is_published: productData.is_published,
+        image_url: imageUrl,
+        created_by: userId
+      });
+      
+      console.log("Database insert successful:", result);
+      return result;
+    } catch (dbError) {
+      console.error("Database insert failed, cleaning up storage...");
+      // Optional: Add logic here to delete the uploaded file if DB insert fails
+      throw dbError; 
+    }
   }
 };

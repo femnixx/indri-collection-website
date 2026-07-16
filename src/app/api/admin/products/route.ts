@@ -26,37 +26,77 @@ async function authorizeAdmin(supabase: any) {
   return { authorized: true, user };
 }
 
-export async function POST(request: Request) {
+// GET: Fetch products by category
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const categoryId = searchParams.get("category_id");
   const supabase = await createSupabaseServerClient();
-  
-  // 1. Authorization Gate
-  const auth = await authorizeAdmin(supabase);
-  if (!auth.authorized) {
-    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+
+  if (!categoryId) {
+    return NextResponse.json({ success: false, error: "Missing category_id" }, { status: 400 });
   }
 
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category_id", categoryId);
+
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true, data });
+}
+
+// POST: Add new product (Requires Admin)
+export async function POST(request: Request) {
+  const supabase = await createSupabaseServerClient();
+  const auth = await authorizeAdmin(supabase);
+  if (!auth.authorized) return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+
   try {
-    // 2. Data Extraction
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const categoryId = formData.get("category_id") as string | null;
     const name = formData.get("name") as string | null;
 
-    if (!categoryId || !name) {
-      return NextResponse.json({ success: false, error: "Missing required fields: category_id, name" }, { status: 400 });
-    }
+    if (!categoryId || !name) return NextResponse.json({ success: false, error: "Missing fields" }, { status: 400 });
 
-    // 3. Execution
-    const data = await productService.addProduct(
-      { name, category_id: categoryId, is_published: true },
-      auth.user!.id,
-      file,
-      categoryId
-    );
-
+    const data = await productService.addProduct({ name, category_id: categoryId, is_published: true }, auth.user!.id, file, categoryId);
     return NextResponse.json({ success: true, data });
-  } catch (error) {
-    console.error("[API_ERROR] Product creation failed:", error);
-    return NextResponse.json({ success: false, error: "Failed to process product upload" }, { status: 500 });
+  } catch (error: any ) {
+    console.error("DETAILED ERROR: ", JSON.stringify(error, null, 2));
+    return NextResponse.json({ success: false, error: "Failed to upload" }, { status: 500 });
   }
+}
+
+// PUT: Update product name (Requires Admin)
+export async function PUT(request: Request) {
+  const supabase = await createSupabaseServerClient();
+  const auth = await authorizeAdmin(supabase);
+  if (!auth.authorized) return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+
+  try {
+    const { id, name } = await request.json();
+    const { error } = await supabase.from("products").update({ name }).eq("id", id);
+    
+    if (error) throw error;
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: "Failed to update" }, { status: 500 });
+  }
+}
+
+// DELETE: Remove product (Requires Admin)
+export async function DELETE(request: Request) {
+  const supabase = await createSupabaseServerClient();
+  const auth = await authorizeAdmin(supabase);
+  if (!auth.authorized) return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+  
+  if (!id) return NextResponse.json({ success: false, error: "Missing product ID" }, { status: 400 });
+
+  const { error } = await supabase.from("products").delete().eq("id", id);
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  
+  return NextResponse.json({ success: true });
 }

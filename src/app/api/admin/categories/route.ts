@@ -10,10 +10,7 @@ async function validateAdminRole(supabase: any) {
     return { isValid: false, status: 401, error: "Unauthorized: Sesi tidak valid atau telah berakhir." };
   }
 
-  // Cek klaim role di app_metadata atau user_metadata (sesuaikan dengan setup Supabase Auth Anda)
-  // Umumnya jika Anda menggunakan custom claims / triggers, rolenya ada di app_metadata.
   const userRole = user.app_metadata?.role || user.user_metadata?.role;
-  
   if (userRole !== "admin") {
     return { isValid: false, status: 403, error: "Forbidden: Anda tidak memiliki akses admin." };
   }
@@ -31,7 +28,20 @@ export async function POST(request: Request) {
     const parseResult = categorySchema.safeParse(json);
     if (!parseResult.success) return NextResponse.json({ error: parseResult.error.flatten().fieldErrors }, { status: 400 });
 
+    // 1. Add category to database
     const data = await categoryService.addCategory(parseResult.data);
+    
+    // 2. Initialize folder in Supabase Storage with a dummy file
+    const folderName = data.name.replace(/\s+/g, '_').toLowerCase();
+    const { error: storageError } = await supabase.storage
+      .from('products')
+      .upload(`${folderName}/.keep`, new Blob([''], { type: 'text/plain' }));
+
+    if (storageError) {
+      console.error("Storage init error:", storageError);
+      // Optional: If storage fails, you may want to delete the DB record here
+    }
+
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
     return NextResponse.json({ error: "Gagal membuat folder." }, { status: 500 });
