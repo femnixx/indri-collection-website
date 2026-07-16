@@ -786,10 +786,6 @@
     display: inline-flex;
   }
 
-  .table {
-    display: table;
-  }
-
   .aspect-square {
     aspect-ratio: 1;
   }
@@ -2823,12 +2819,6 @@
   }
 
   @media (min-width: 48rem) {
-    .md\:overflow-visible {
-      overflow: visible;
-    }
-  }
-
-  @media (min-width: 48rem) {
     .md\:p-6 {
       padding: calc(var(--spacing) * 6);
     }
@@ -2861,12 +2851,6 @@
   @media (min-width: 48rem) {
     .md\:py-28 {
       padding-block: calc(var(--spacing) * 28);
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:pb-0 {
-      padding-bottom: 0;
     }
   }
 

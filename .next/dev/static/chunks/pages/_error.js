@@ -1,12 +1,12 @@
 __turbopack_load_page_chunks__("/_error", [
-  "static/chunks/1f9g_next_dist_compiled_0suxqhk._.js",
-  "static/chunks/1f9g_next_dist_shared_lib_0dl_m4c._.js",
-  "static/chunks/1f9g_next_dist_client_19mq4mb._.js",
-  "static/chunks/1f9g_next_dist_0q_o_66._.js",
-  "static/chunks/[next]_entry_page-loader_ts_07zh1l8._.js",
-  "static/chunks/1f9g_react-dom_0u0q9e6._.js",
-  "static/chunks/1f9g_05l62g2._.js",
-  "static/chunks/[root-of-the-server]__0a1pp5d._.js",
-  "static/chunks/dev_indri-collection-website_pages__error_0du2_q-._.js",
-  "static/chunks/turbopack-dev_indri-collection-website_pages__error_1dy5-qs._.js"
+  "static/chunks/node_modules_next_dist_compiled_14ibvna._.js",
+  "static/chunks/node_modules_next_dist_shared_lib_0pizcwv._.js",
+  "static/chunks/node_modules_next_dist_client_16lnmlo._.js",
+  "static/chunks/node_modules_next_dist_1atto1n._.js",
+  "static/chunks/[next]_entry_page-loader_ts_1aoli7m._.js",
+  "static/chunks/node_modules_react-dom_0kla17-._.js",
+  "static/chunks/node_modules_10e2-xo._.js",
+  "static/chunks/[root-of-the-server]__02sxxph._.js",
+  "static/chunks/pages__error_0du2_q-._.js",
+  "static/chunks/turbopack-pages__error_18oj9bx._.js"
 ])

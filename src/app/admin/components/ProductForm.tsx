@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js"; // Gunakan client instance untuk upload direct dari browser
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ProductForm({ categories }: { categories: any[] }) {
   const router = useRouter();
@@ -15,55 +15,48 @@ export default function ProductForm({ categories }: { categories: any[] }) {
     is_published: true,
   });
 
-  const handleUploadImage = async (file: File): Promise<string | null> => {
-    // Inisialisasi Supabase client publik di sisi browser
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}_${Date.now()}.${fileExt}`;
-    const filePath = `product-images/${fileName}`;
-
-    // Pastikan Anda sudah membuat public bucket bernama 'products' di Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("products")
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error("Gagal unggah gambar:", uploadError.message);
-      return null;
-    }
-
-    // Dapatkan Public URL gambar yang diunggah
-    const { data } = supabase.storage.from("products").getPublicUrl(filePath);
-    return data.publicUrl;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imageFile) return alert("Silakan pilih gambar produk terlebih dahulu!");
+    if (!imageFile || !formData.category_id) {
+      return alert("Mohon lengkapi kategori dan foto produk!");
+    }
 
     setLoading(true);
     try {
-      // 1. Unggah gambar ke Supabase Storage terlebih dahulu
-      const imageUrl = await handleUploadImage(imageFile);
-      if (!imageUrl) throw new Error("Gagal mengunggah gambar");
+      // 1. Upload to dynamic path: bucket/category_id/filename
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${formData.category_id}/${fileName}`;
 
-      // 2. Kirim seluruh metadata produk ke API internal Next.js
+      const { error: uploadError } = await supabase.storage
+        .from("products")
+        .upload(filePath, imageFile);
+
+      if (uploadError) throw uploadError;
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from("products")
+        .getPublicUrl(filePath);
+
+      // 3. Submit metadata to internal API
       const response = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, image_url: imageUrl }),
+        body: JSON.stringify({ ...formData, image_url: publicUrl }),
       });
 
       const result = await response.json();
-      if (!result.success) throw new Error(result.error);
+      if (!result.success) throw new Error(result.error || "Gagal menyimpan ke database");
 
       alert("Produk berhasil ditambahkan!");
       router.refresh();
-      // Reset form di sini jika diperlukan
+      
+      // Reset Form
+      setFormData({ name: "", description: "", category_id: "", is_published: true });
+      setImageFile(null);
     } catch (err: any) {
+      console.error(err);
       alert(err.message || "Terjadi kesalahan sistem.");
     } finally {
       setLoading(false);
@@ -72,6 +65,8 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4 p-4 bg-white rounded shadow">
+      <h2 className="text-lg font-bold">Tambah Produk Baru</h2>
+      
       <div>
         <label className="block text-sm font-medium">Nama Produk</label>
         <input 
@@ -105,7 +100,7 @@ export default function ProductForm({ categories }: { categories: any[] }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium">Deskripsi (Opsional)</label>
+        <label className="block text-sm font-medium">Deskripsi</label>
         <textarea 
           value={formData.description}
           onChange={(e) => setFormData({...formData, description: e.target.value})}
