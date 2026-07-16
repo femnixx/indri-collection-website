@@ -1,9 +1,26 @@
 "use client";
 
+import { useEffect } from 'react';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
+import { settingsRepository } from '@/repositories/settingsRepository';
 
 function Hero() {
   const [sectionRef, sectionVisible] = useScrollReveal(0.05);
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => { 
+    async function loadSettings() {
+      try {
+        const data = await settingsRepository.fetchPublicSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error("Gagal mengambil data dari Supabase:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadSettings();
+  }, []);
 
   const fadeUp = (delay = '0ms') => ({
     style: {
@@ -105,7 +122,7 @@ function Hero() {
       </div>
 
       {/* WhatsApp FAB */}
-      <a href="https://wa.me/6285385353014" target="_blank" rel="noopener noreferrer"
+      <a href={`https://wa.me/${settings.whatsapp_number}`} target="_blank" rel="noopener noreferrer"
         aria-label="Chat via WhatsApp"
         style={{
           opacity: sectionVisible ? 1 : 0,

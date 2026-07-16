@@ -3,15 +3,15 @@
   "middleware": {
     "/": {
       "files": [
-        "server/edge/chunks/node_modules_next_dist_05lqd51._.js",
-        "server/edge/chunks/node_modules_@supabase_auth-js_dist_module_0focj3n._.js",
-        "server/edge/chunks/node_modules_0oqsa-x._.js",
-        "server/edge/chunks/[root-of-the-server]__13jvavz._.js",
-        "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_01b20ej.js"
+        "server/edge/chunks/1f9g_next_dist_1yo-dq7._.js",
+        "server/edge/chunks/1f9g_@supabase_auth-js_dist_module_0xax_n6._.js",
+        "server/edge/chunks/1f9g_0x6v2-5._.js",
+        "server/edge/chunks/[root-of-the-server]__05uqk8f._.js",
+        "server/edge/chunks/1h7l_next_dist_esm_build_templates_edge-wrapper_1ribwoq.js"
       ],
       "name": "middleware",
       "page": "/",
-      "entrypoint": "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_01b20ej.js",
+      "entrypoint": "server/edge/chunks/1h7l_next_dist_esm_build_templates_edge-wrapper_1ribwoq.js",
       "matchers": [
         {
           "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next\\/static|_next\\/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*))(\\.json|\\.rsc|\\.segments\\/.+\\.segment\\.rsc)?[\\/#\\?]?$",
@@ -23,9 +23,9 @@
       "env": {
         "__NEXT_BUILD_ID": "development",
         "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "pJb9Y9iuLzQhkQqTmk8Mwo9BQsLJKVQRoPkzT2exn/0=",
-        "__NEXT_PREVIEW_MODE_ID": "cc3a669e8453333018e6fe49904e8328",
-        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "b539cae9cf1a38b5f6a6d6076011d655b44cc0b443757949534d1cb3e895273e",
-        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "94d63e36f53d7776afdda07df2f98fb6466e06e13ad3247195f1ef618f9224f4"
+        "__NEXT_PREVIEW_MODE_ID": "9bf0b8e1794d15cac3982ee1f772e03e",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "153557bd25fde815c5e8281ec656a2e7c47ddf838399e662e60fd1c85e8fb840",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "d8ab6c59995dd3514079606e28d9ebecbe1c28a8f65b3d3419e2b5d786a67194"
       }
     }
   },
