@@ -1,5 +1,4 @@
-// src/lib/supabaseClient.js
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from '@supabase/ssr';
 
 // Kredensial Auth 
 const supabaseAuthUrl = process.env.NEXT_PUBLIC_SUPABASE_AUTH_URL;
