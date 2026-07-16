@@ -28,15 +28,36 @@ export default function ManageCollectionPage() {
     setProducts(data || []);
   };
 
+  // --- REWRITTEN addCategory FUNCTION ---
   const addCategory = async () => {
     const name = prompt("Nama Folder Baru:");
-    if (!name) return;
-    const { data } = await supabase.from("categories").insert({ name, slug: name.toLowerCase().replace(/\s+/g, '-') }).select().single();
-    if (data) {
-      setCategories([...categories, data]);
-      if (!activeCategory) setActiveCategory(data);
+    if (!name || name.trim().length < 3) {
+      alert("Nama folder minimal 3 karakter.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        const newCategory = result.data;
+        setCategories([...categories, newCategory]);
+        if (!activeCategory) setActiveCategory(newCategory);
+      } else {
+        alert("Gagal membuat folder: " + (result.error || "Terjadi kesalahan."));
+      }
+    } catch (error) {
+      console.error("Error creating category:", error);
+      alert("Terjadi kesalahan sistem.");
     }
   };
+  // ---------------------------------------
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0] || !activeCategory) return;
@@ -51,13 +72,11 @@ export default function ManageCollectionPage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 h-full">
-      {/* Sidebar yang sekarang selalu muncul di atas */}
       <div className="w-full space-y-4">
         <button onClick={addCategory} className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 font-bold text-sm">
           <FolderPlus size={18} /> Buat Folder
         </button>
         
-        {/* Scrollable category list */}
         <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
           {categories.map((cat) => (
             <button 
@@ -71,7 +90,6 @@ export default function ManageCollectionPage() {
         </div>
       </div>
 
-      {/* Konten Utama */}
       <div className="flex-1">
         {categories.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl text-gray-400 p-6">
