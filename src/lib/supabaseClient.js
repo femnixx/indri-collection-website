@@ -1,15 +1,18 @@
 import { createBrowserClient } from '@supabase/ssr';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Kredensial Auth 
+const supabaseAuthUrl = process.env.NEXT_PUBLIC_SUPABASE_AUTH_URL;
+const supabaseAuthAnonKey = process.env.NEXT_PUBLIC_SUPABASE_AUTH_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
+// Kredensial DB & Storage
+const supabaseDataUrl = process.env.NEXT_PUBLIC_SUPABASE_DB_URL;
+const supabaseDataAnonKey = process.env.NEXT_PUBLIC_SUPABASE_DB_ANON_KEY;
+
+if (!supabaseAuthUrl || !supabaseDataUrl) {
   console.warn(
-    "Peringatan: Kredensial Supabase tidak ditemukan di environment variables. Pastikan .env.local sudah dikonfigurasi."
+    "Peringatan: Kredensial Supabase tidak lengkap di environment variables. Pastikan .env.local sudah dikonfigurasi dengan benar."
   );
 }
 
-export const supabase = createBrowserClient(
-  supabaseUrl || "",
-  supabaseAnonKey || ""
-);
+export const supabaseAuth = createClient(supabaseAuthUrl || "", supabaseAuthAnonKey || "");
+export const supabaseData = createClient(supabaseDataUrl || "", supabaseDataAnonKey || "");

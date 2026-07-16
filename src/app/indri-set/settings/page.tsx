@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { Mail, MessageSquare, Clock, Save, CheckCircle2, AlertCircle, MapPin } from "lucide-react";
 import { settingsRepository, FALLBACK_SETTINGS } from "@/repositories/settingsRepository";
 
+<<<<<<< HEAD:src/app/admin/settings/page.tsx
+=======
+
+>>>>>>> origin/dev-v2:src/app/indri-set/settings/page.tsx
 const InstagramIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -23,9 +27,12 @@ const InstagramIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
 );
 
 export default function AdminSettingsPage() {
+<<<<<<< HEAD:src/app/admin/settings/page.tsx
   const router = useRouter();
 
   // Menggunakan data fallback terpusat sebagai initial state jika db error/kosong
+=======
+>>>>>>> origin/dev-v2:src/app/indri-set/settings/page.tsx
   const [formData, setFormData] = useState({
     email_address: FALLBACK_SETTINGS.email_address,
     instagram_url: FALLBACK_SETTINGS.instagram_url,
@@ -80,8 +87,13 @@ export default function AdminSettingsPage() {
     try {
       await settingsRepository.saveSettings(formData);
       setShowSuccessToast(true);
+<<<<<<< HEAD:src/app/admin/settings/page.tsx
       
       // Auto-hide sukses banner setelah 3 detik
+=======
+
+      // Auto-hide success message after 3 seconds
+>>>>>>> origin/dev-v2:src/app/indri-set/settings/page.tsx
       setTimeout(() => setShowSuccessToast(false), 3000);
     } catch (err: any) {
       console.error(err);
@@ -295,9 +307,8 @@ export default function AdminSettingsPage() {
           <button
             type="submit"
             disabled={isSaving}
-            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-600/10 hover:bg-blue-700 transition-all cursor-pointer ${
-              isSaving ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-600/10 hover:bg-blue-700 transition-all cursor-pointer ${isSaving ? "opacity-70 cursor-not-allowed" : ""
+              }`}
           >
             {isSaving ? (
               <>

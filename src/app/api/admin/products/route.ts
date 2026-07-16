@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { productService } from "@/services/productService";
@@ -99,4 +100,17 @@ export async function DELETE(request: Request) {
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   
   return NextResponse.json({ success: true });
+=======
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
+
+export async function GET() {
+  const { data, error } = await supabase
+    .from('product_images')
+    .select('*')
+    .eq('is_active', true);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ data });
+>>>>>>> origin/dev-v2
 }

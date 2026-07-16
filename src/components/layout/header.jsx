@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { navLinks } from '../../constants';
+import { Button } from "../ui/button";
+import Link from 'next/link';
 
 const BREAKPOINT = 768; // matches Tailwind md
 

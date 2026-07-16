@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import AdminSidebar from "./components/AdminSidebar";
-// Impor instance Supabase Client yang sudah kita buat sebelumnya
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseAuth } from "@/lib/supabaseClient";
 
-export default function AdminRootLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,33 +15,31 @@ export default function AdminRootLayout({
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Jika mengakses halaman login, bypass pengecekan hak akses di layout utama
-    if (pathname === "/admin/login") {
+    if (pathname === "/indri-set/login") {
       setIsAuthorized(true);
       return;
     }
 
     const checkAuth = async () => {
       try {
-        // Mendapatkan session JWT aktif secara asinkron dari Supabase Auth SDK
-        const { data: { session } } = await supabase.auth.getSession();
-        
+        const { data: { session } } = await supabaseAuth.auth.getSession();
+
         if (session) {
           setIsAuthorized(true);
         } else {
           setIsAuthorized(false);
-          router.replace("/admin/login");
+          router.replace("/indri-set/login");
         }
       } catch (err) {
         setIsAuthorized(false);
-        router.replace("/admin/login");
+        router.replace("/indri-set/login");
       }
     };
 
     checkAuth();
   }, [router, pathname]);
 
-  // Render kondisi loading state saat status token otentikasi sedang diverifikasi
+  // Loading state
   if (isAuthorized === null) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 text-gray-600">
@@ -54,8 +51,7 @@ export default function AdminRootLayout({
     );
   }
 
-  // Jika di halaman login, langsung render halamannya tanpa membungkus dengan shell AdminSidebar
-  if (pathname === "/admin/login") {
+  if (pathname === "/indri-set/login") {
     return <>{children}</>;
   }
 
@@ -63,10 +59,7 @@ export default function AdminRootLayout({
 
   return (
     <div className="flex min-h-screen bg-slate-50/80 text-gray-800 flex-col md:flex-row antialiased">
-      {/* 🧭 Sidebar Navigasi Cerah (Sticky & Responsif) */}
       <AdminSidebar />
-
-      {/* 📊 Area Konten Utama Dashboard */}
       <main className="flex-1 overflow-y-auto p-5 sm:p-8 lg:p-10">
         <div className="mx-auto max-w-7xl">
           {children}
