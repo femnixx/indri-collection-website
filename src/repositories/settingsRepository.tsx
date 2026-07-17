@@ -1,6 +1,8 @@
+import { supabaseAuth } from "@/lib/supabaseClient";
+
 export interface ShopSettingsData {
   whatsapp_number: string;
-  email_address: string; 
+  email_address: string;
   address: string;
   operational_hours: string;
   instagram_url: string;
@@ -25,50 +27,47 @@ export class RepositoryError extends Error {
   }
 }
 
+const BASE_API_URL = '/api/admin/settings';
+
 export const settingsRepository = {
-  async fetchPublicSettings(): Promise<ShopSettingsData> {
-    try {
-      const response = await fetch('/api/admin/settings', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const json = await response.json();
-
-      if (response.ok && json.success && json.data) {
-        return {
-          email_address: json.data.email_address || FALLBACK_SETTINGS.email_address,
-          instagram_url: json.data.instagram_url || FALLBACK_SETTINGS.instagram_url,
-          tiktok_url: json.data.tiktok_url || FALLBACK_SETTINGS.tiktok_url,
-          whatsapp_number: json.data.whatsapp_number || FALLBACK_SETTINGS.whatsapp_number,
-          address: json.data.address || FALLBACK_SETTINGS.address,
-          operational_hours: json.data.operational_hours || FALLBACK_SETTINGS.operational_hours,
-        };
-      }
-      return FALLBACK_SETTINGS;
-    } catch (error) {
-      console.warn("[REPO FALLBACK] Gagal fetch, menggunakan data default:", error);
-      return FALLBACK_SETTINGS;
+ async fetchPublicSettings(): Promise<ShopSettingsData> {
+  try {
+    const { data: { session } } = await supabaseAuth.auth.getSession();
+    
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (session) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
     }
-  },
 
-  async saveSettings(data: ShopSettingsData): Promise<ShopSettingsData> {
-    const response = await fetch('/api/admin/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-
+    const response = await fetch(BASE_API_URL, { method: 'GET', headers });
+    if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+    
     const json = await response.json();
-
-    if (!response.ok || !json.success) {
-      const errorMessage = typeof json.error === 'object' 
-        ? JSON.stringify(json.error) 
-        : json.error || "Gagal menyimpan data.";
-
-      throw new RepositoryError(errorMessage, response.status);
-    }
-
-    return json.data;
+    return json.success && json.data ? { ...FALLBACK_SETTINGS, ...json.data } : FALLBACK_SETTINGS;
+  } catch (error) {
+    return FALLBACK_SETTINGS;
   }
+},
+
+async saveSettings(data: ShopSettingsData): Promise<ShopSettingsData> {
+  const { data: { session } } = await supabaseAuth.auth.getSession();
+  if (!session) throw new RepositoryError("Unauthorized", 401);
+
+  const response = await fetch(BASE_API_URL, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}` 
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "Gagal menyimpan data.");
+    throw new RepositoryError(errorText, response.status);
+  }
+
+  const json = await response.json();
+  return json.data;
+}
 };

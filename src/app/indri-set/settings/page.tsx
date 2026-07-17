@@ -83,7 +83,7 @@ export default function AdminSettingsPage() {
       if (err.status === 401 || err.message === "Unauthorized") {
         setErrorMessage("Sesi Anda telah berakhir atau Anda belum login. Mengalihkan ke halaman login...");
         setTimeout(() => {
-          router.replace("/admin/login");
+          router.replace("/indri-set/login");
         }, 2000);
         return;
       }
