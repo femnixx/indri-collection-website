@@ -58,12 +58,9 @@ export default function AdminLayout({
   if (!isAuthorized) return null;
 
   return (
-    // PERBAIKAN UTAMA RESPONSIVITAS:
-    // md:flex-row memastikan sidebar berada di samping kiri pada desktop.
-    // flex-col memastikan sidebar tertata rapi di atas/bawah pada perangkat mobile.
-    <div className="flex min-h-screen bg-slate-50/80 text-gray-800 flex-col md:flex-row antialiased overflow-x-hidden">
+    <div className="flex min-h-screen bg-slate-50/80 text-gray-800 flex-col md:flex-row antialiased">
       <AdminSidebar />
-      <main className="flex-1 w-full p-4 sm:p-6 md:p-8 lg:p-10">
+      <main className="flex-1 overflow-y-auto p-5 sm:p-8 lg:p-10">
         <div className="mx-auto max-w-7xl">
           {children}
         </div>

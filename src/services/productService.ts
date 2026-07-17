@@ -38,12 +38,24 @@ export const productService = {
         description: productData.description || "",
         category_id: categoryId.toString(),
         is_published: productData.is_published,
-        image_url: filePath,
+        image_url: filePath,  // ✅ Store the file path, not full URL
         created_by: userId
       });
     } catch (dbError) {
       await supabaseAdmin.storage.from('products').remove([filePath]);
       throw dbError; 
     }
+  },
+
+  // ✅ NEW: Convert file paths to public URLs
+  async resolveImageUrl(filePath: string | null): Promise<string> {
+    if (!filePath) return "/placeholder.png";
+
+    const supabaseAdmin = createSupabaseAdminClient();
+    const { data } = supabaseAdmin.storage
+      .from("products")
+      .getPublicUrl(filePath);  // ✅ Returns public URL (never expires)
+
+    return data.publicUrl;
   }
 };

@@ -2,10 +2,12 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // 1. Create a clone of headers to modify for the downstream request
+  const requestHeaders = new Headers(request.headers);
+
+  // 2. Initialize Supabase client
   let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: requestHeaders },
   });
 
   const supabase = createServerClient(
@@ -20,9 +22,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value)
           );
-          response = NextResponse.next({
-            request,
-          });
+          response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -31,12 +31,12 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // 🔒 Menggunakan getUser() wajib untuk validasi token aman di sisi server middleware
-  const { data: { user } } = await supabase.auth.getUser();
+  // 3. Validate user session
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // Proteksi Halaman Admin
+  // 4. Protect Admin Routes (only check if user has session)
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!user && request.nextUrl.pathname !== '/admin/login') {
+    if (!session && request.nextUrl.pathname !== '/admin/login') {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
       return NextResponse.redirect(url);

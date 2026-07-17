@@ -159,9 +159,16 @@ export default function ManageCollectionPage() {
           </div>
         ))}
         
-        <button onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-2xl flex flex-col gap-2 items-center justify-center aspect-square bg-gray-50 hover:bg-blue-50">
-          {isUploading ? <Loader2 className="animate-spin text-blue-600 h-10 w-10" /> : <Plus size={40} className="text-gray-400" />}
-        </button>
+        {categories.length === 0 ? (
+          <div className="border-2 border-dashed border-gray-300 rounded-2xl flex flex-col gap-2 items-center justify-center aspect-square bg-gray-50 cursor-not-allowed opacity-50">
+            <Plus size={40} className="text-gray-300" />
+            <p className="text-xs text-gray-400 text-center px-2">Buat folder dulu</p>
+          </div>
+        ) : (
+          <button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="border-2 border-dashed border-gray-300 rounded-2xl flex flex-col gap-2 items-center justify-center aspect-square bg-gray-50 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            {isUploading ? <Loader2 className="animate-spin text-blue-600 h-10 w-10" /> : <Plus size={40} className="text-gray-400" />}
+          </button>
+        )}
       </div>
       <input type="file" ref={fileInputRef} onChange={(e) => e.target.files && handleAction(e.target.files[0])} className="hidden" />
     </div>

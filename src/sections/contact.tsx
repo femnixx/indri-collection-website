@@ -5,13 +5,6 @@ import { InstagramIcon, TiktokIcon } from '../components/ui/icons';
 import { Mail } from 'lucide-react';
 import SectionHeader from '../components/ui/section-header';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
-import { ContactInfo } from '@/types/database';
-
-const ICON: Record<string, React.ReactNode> = {
-  email: <Mail className="w-[1.2em] h-[1.2em]" />,
-  instagram: <InstagramIcon />,
-  tiktok: <TiktokIcon />,
-};
 
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode, delay?: number, className?: string }) {
   const [ref, visible] = useScrollReveal(0.1);
@@ -31,37 +24,83 @@ function Reveal({ children, delay = 0, className = '' }: { children: React.React
   );
 }
 
+const ICON: Record<string, React.ReactNode> = {
+  email: <Mail className="w-[1.2em] h-[1.2em]" />,
+  instagram: <InstagramIcon />,
+  tiktok: <TiktokIcon />,
+};
+
 const getHandle = (url: string) => {
   if (!url) return '';
-  if (url.startsWith('@')) return url;
   const parts = url.replace(/\/$/, '').split('/');
   const lastPart = parts[parts.length - 1];
   return lastPart.startsWith('@') ? lastPart : `@${lastPart}`;
 };
 
+interface ContactInfo {
+  whatsapp_number?: string;
+  email_address?: string;
+  address?: string;
+  operational_hours?: string;
+  instagram_url?: string;
+  tiktok_url?: string;
+}
+
 export default function Contact() {
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchContact = async () => {
       try {
-        const response = await fetch('/api/contact');
+        // Fetch from PUBLIC endpoint (no auth required)
+        const response = await fetch('/api/admin/contact');
         if (!response.ok) throw new Error('Gagal memuat kontak');
-        const data: ContactInfo = await response.json();
-        setContactInfo(data);
-      } catch (error) {
-        console.error(error);
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setContactInfo(result.data);
+        } else {
+          setError('Informasi kontak tidak tersedia');
+        }
+      } catch (err) {
+        console.error('Error fetching contact:', err);
+        setError('Gagal memuat informasi kontak');
       } finally {
         setIsLoading(false);
       }
     };
+    
     fetchContact();
   }, []);
 
+  if (isLoading) {
+    return (
+      <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24 flex justify-center items-center min-h-[350px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </section>
+    );
+  }
+
+  if (error || !contactInfo) {
+    return (
+      <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24">
+        <Reveal className="text-center mb-14">
+          <SectionHeader title="Hubungi" highlightedText="Kami" />
+          <p className="text-gray-400 text-sm md:text-base">
+            Kunjungi kami atau hubungi melalui kontak di bawah ini
+          </p>
+        </Reveal>
+        <p className="text-center text-gray-500">{error || 'Informasi kontak tidak tersedia'}</p>
+      </section>
+    );
+  }
+
   const socialLinks = [];
   
-  if (contactInfo?.email_address) {
+  if (contactInfo.email_address) {
     socialLinks.push({ 
       id: 'email', 
       label: contactInfo.email_address,
@@ -69,7 +108,7 @@ export default function Contact() {
     });
   }
   
-  if (contactInfo?.instagram_url) {
+  if (contactInfo.instagram_url) {
     socialLinks.push({ 
       id: 'instagram', 
       label: getHandle(contactInfo.instagram_url),
@@ -77,7 +116,7 @@ export default function Contact() {
     });
   }
   
-  if (contactInfo?.tiktok_url) {
+  if (contactInfo.tiktok_url) {
     socialLinks.push({ 
       id: 'tiktok', 
       label: getHandle(contactInfo.tiktok_url),
@@ -87,7 +126,6 @@ export default function Contact() {
 
   return (
     <section id="contact" className="bg-white py-20 px-6 md:px-16 lg:px-24">
-
       <Reveal className="text-center mb-14">
         <SectionHeader title="Hubungi" highlightedText="Kami" />
         <p className="text-gray-400 text-sm md:text-base">
@@ -95,82 +133,85 @@ export default function Contact() {
         </p>
       </Reveal>
 
-      {isLoading ? (
-        <div className="flex justify-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      ) : contactInfo ? (
-        <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10">
-          
-          {/* Map */}
-          <Reveal delay={120}>
-            <div className="h-60 w-full md:w-80 md:h-80 rounded-2xl shadow-xl overflow-hidden border-4 border-white">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d203.2388192792083!2d112.61190915601682!3d-7.938847851201809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7883000f8c5861%3A0xe88d20a59aba2693!2sIndri%20Collection!5e1!3m2!1sen!2sid!4v1781274935669!5m2!1sen!2sid"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Indri Collection Location"
-              />
-            </div>
-          </Reveal>
+      <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10">
+        
+        {/* Map */}
+        <Reveal delay={120}>
+          <div className="h-60 w-full md:w-80 md:h-80 rounded-2xl shadow-xl overflow-hidden border-4 border-white">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d203.2388192792083!2d112.61190915601682!3d-7.938847851201809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7883000f8c5861%3A0xe88d20a59aba2693!2sIndri%20Collection!5e1!3m2!1sen!2sid!4v1781274935669!5m2!1sen!2sid"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Indri Collection Location"
+            />
+          </div>
+        </Reveal>
 
-          {/* Contact details */}
-          <Reveal delay={240} className="w-full md:w-auto md:min-w-[280px]">
-            <div className="flex flex-col gap-6">
-              
-              <div className="flex flex-col gap-4 mb-2">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.href}
-                    target="_blank"
+        {/* Contact details */}
+        <Reveal delay={240} className="w-full md:w-auto md:min-w-[280px]">
+          <div className="flex flex-col gap-6">
+            
+            {/* Social Links */}
+            <div className="flex flex-col gap-4">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  target={link.id !== 'email' ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-4 text-primary hover:-translate-y-1 transition-all duration-200 text-base font-medium"
+                >
+                  <span className="text-primary flex-shrink-0 group-hover:text-accent transition-colors duration-200">
+                    {ICON[link.id]}
+                  </span>
+                  <span className="group-hover:text-accent transition-colors duration-200">
+                    {link.label}
+                  </span>
+                </a>
+              ))}
+            </div>
+
+            {/* Address & Hours */}
+            <div className="border-t border-gray-100 pt-6 mt-1">
+              {contactInfo.address && (
+                <>
+                  <p className="text-primary font-bold text-sm mb-2">Alamat</p>
+                  <p className="text-gray-500 text-sm mb-5 leading-relaxed">
+                    {contactInfo.address}
+                  </p>
+                </>
+              )}
+
+              {contactInfo.operational_hours && (
+                <>
+                  <p className="text-primary font-bold text-sm mb-2">Jam Operasional</p>
+                  <p className="text-gray-400 text-sm mb-5">
+                    {contactInfo.operational_hours}
+                  </p>
+                </>
+              )}
+
+              {/* WhatsApp Button */}
+              {contactInfo.whatsapp_number && (
+                <div className="mt-4">
+                  <a 
+                    href={`https://wa.me/${contactInfo.whatsapp_number.replace(/\D/g, '')}`} 
+                    target="_blank" 
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-4 text-primary hover:-translate-y-1 transition-all duration-200 text-base font-medium"
+                    className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                   >
-                    <span className="text-primary flex-shrink-0 group-hover:text-accent transition-colors duration-200">
-                      {ICON[link.id]}
-                    </span>
-                    <span className="group-hover:text-accent transition-colors duration-200">
-                      {link.label}
-                    </span>
+                    Chat WhatsApp
                   </a>
-                ))}
-              </div>
-
-              <div className="border-t border-gray-100 pt-6 mt-1">
-                <p className="text-primary font-bold text-sm mb-2">Alamat</p>
-                <p className="text-gray-500 text-sm mb-5 leading-relaxed">
-                  {contactInfo.address || 'Belum ada alamat.'}
-                </p>
-
-                <p className="text-primary font-bold text-sm mb-2">Jam Operasional</p>
-                <p className="text-gray-400 text-sm mb-5">
-                  {contactInfo.operational_hours || 'Senin - Sabtu: 09:00 - 16:00 WIB'}
-                </p>
-
-                {contactInfo.whatsapp_number && (
-                  <div className="mt-2">
-                    <a 
-                      href={`https://wa.me/${contactInfo.whatsapp_number.replace(/\D/g, '')}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 px-6 rounded-full text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-                    >
-                      Chat WhatsApp
-                    </a>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          </Reveal>
-        </div>
-      ) : (
-        <p className="text-center text-gray-500">Informasi kontak tidak tersedia.</p>
-      )}
+          </div>
+        </Reveal>
+      </div>
     </section>
   );
 }

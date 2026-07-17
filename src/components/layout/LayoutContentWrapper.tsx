@@ -13,7 +13,7 @@ export default function LayoutContentWrapper({
   const pathname = usePathname();
 
   // Memeriksa apakah rute saat ini diawali dengan "/admin"
-  const isAdminRoute = pathname?.startsWith("/admin");
+  const isAdminRoute = pathname?.startsWith("/indri-set");
 
   // Jika berada di rute /admin, render children langsung TANPA Header & Footer
   if (isAdminRoute) {

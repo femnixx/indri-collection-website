@@ -1,6 +1,8 @@
+import { supabaseAuth } from "@/lib/supabaseClient";
+
 export interface ShopSettingsData {
   whatsapp_number: string;
-  email_address: string; 
+  email_address: string;
   address: string;
   operational_hours: string;
   instagram_url: string;
@@ -25,50 +27,56 @@ export class RepositoryError extends Error {
   }
 }
 
+// ✅ API URL for contact settings
+const API_URL = '/api/admin/contact';
+
 export const settingsRepository = {
+  /**
+   * Fetch public contact settings (no auth required)
+   */
   async fetchPublicSettings(): Promise<ShopSettingsData> {
     try {
-      const response = await fetch('/api/admin/settings', {
+      // Public endpoint - no auth required for GET
+      const response = await fetch(API_URL, { 
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       });
-
+      
+      if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+      
       const json = await response.json();
-
-      if (response.ok && json.success && json.data) {
-        return {
-          email_address: json.data.email_address || FALLBACK_SETTINGS.email_address,
-          instagram_url: json.data.instagram_url || FALLBACK_SETTINGS.instagram_url,
-          tiktok_url: json.data.tiktok_url || FALLBACK_SETTINGS.tiktok_url,
-          whatsapp_number: json.data.whatsapp_number || FALLBACK_SETTINGS.whatsapp_number,
-          address: json.data.address || FALLBACK_SETTINGS.address,
-          operational_hours: json.data.operational_hours || FALLBACK_SETTINGS.operational_hours,
-        };
-      }
-      return FALLBACK_SETTINGS;
+      return json.success && json.data 
+        ? { ...FALLBACK_SETTINGS, ...json.data } 
+        : FALLBACK_SETTINGS;
     } catch (error) {
-      console.warn("[REPO FALLBACK] Gagal fetch, menggunakan data default:", error);
+      console.error("Error fetching public settings:", error);
       return FALLBACK_SETTINGS;
     }
   },
 
+  /**
+   * Save settings (admin only - requires auth)
+   * ✅ CHANGED: Uses PATCH instead of POST to update existing record
+   */
   async saveSettings(data: ShopSettingsData): Promise<ShopSettingsData> {
-    const response = await fetch('/api/admin/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const { data: { session } } = await supabaseAuth.auth.getSession();
+    if (!session) throw new RepositoryError("Unauthorized", 401);
+
+    const response = await fetch(API_URL, {
+      method: 'PATCH',  // ✅ CHANGED: Use PATCH instead of POST
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}` 
+      },
       body: JSON.stringify(data),
     });
 
-    const json = await response.json();
-
-    if (!response.ok || !json.success) {
-      const errorMessage = typeof json.error === 'object' 
-        ? JSON.stringify(json.error) 
-        : json.error || "Gagal menyimpan data.";
-
-      throw new RepositoryError(errorMessage, response.status);
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "Gagal menyimpan data.");
+      throw new RepositoryError(errorText, response.status);
     }
 
+    const json = await response.json();
     return json.data;
   }
 };

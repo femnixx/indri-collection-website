@@ -1,75 +1,95 @@
-// app/api/admin/settings/route.ts
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabaseServer"; 
+import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { settingsService } from "@/services/settingsService";
 import { contactSettingsSchema } from "@/validations/settingsSchema";
-import { z } from "zod";
 
 /**
- * 🛡️ Helper Validasi Otorisasi (Anti-Privilege Escalation)
- * Memastikan user tidak hanya sekadar login, tapi memiliki role 'admin'.
+ * Extract userId from the JWT Bearer token
  */
-async function validateAdminRole(supabase: any) {
-  const { data: { user }, error } = await supabase.auth.getUser();
+async function getUserIdFromToken(token: string | null): Promise<string | null> {
+  if (!token) return null;
   
-  if (error || !user) {
-    return { isValid: false, status: 401, error: "Unauthorized: Sesi tidak valid atau telah berakhir." };
-  }
-
-  // Cek klaim role di app_metadata atau user_metadata (sesuaikan dengan setup Supabase Auth Anda)
-  // Umumnya jika Anda menggunakan custom claims / triggers, rolenya ada di app_metadata.
-  const userRole = user.app_metadata?.role || user.user_metadata?.role;
-  
-  if (userRole !== "admin") {
-    return { isValid: false, status: 403, error: "Forbidden: Anda tidak memiliki akses admin." };
-  }
-
-  return { isValid: true, user };
-}
-
-export async function GET() {
   try {
-    const supabase = await createSupabaseServerClient();
+    const actualToken = token.startsWith("Bearer ") ? token.slice(7) : token;
+    const supabaseAdmin = createSupabaseAdminClient();
+    const { data, error } = await supabaseAdmin.auth.getUser(actualToken);
     
-    // 🔒 Proteksi Akses Admin
-    const auth = await validateAdminRole(supabase);
-    if (!auth.isValid) {
-      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    if (error || !data.user) {
+      return null;
     }
     
-    const data = await settingsService.getSettings(supabase);
-    
+    return data.user.id;
+  } catch (error) {
+    console.error("DEBUG [API]: Token decode error:", error);
+    return null;
+  }
+}
+
+/**
+ * Check if user is admin
+ */
+async function isUserAdmin(userId: string) {
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { data: admin, error } = await supabaseAdmin
+    .from("admins")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+  
+  return admin?.role === "admin";
+}
+
+/**
+ * GET - Public endpoint for contact info (no auth required)
+ */
+export async function GET() {
+  try {
+    const data = await settingsService.getSettings(createSupabaseAdminClient());
     return NextResponse.json({ success: true, data });
-  } catch (error: any) {
-    console.error("[API GET SETTINGS ERROR]:", error);
+  } catch (error) {
+    console.error("[API GET CONTACT ERROR]:", error);
     return NextResponse.json(
-      { success: false, error: "Gagal memuat pengaturan toko." },
+      { success: false, error: "Gagal memuat informasi kontak." },
       { status: 500 }
     );
   }
 }
 
+/**
+ * POST - Admin only (requires authentication)
+ */
 export async function POST(request: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
+    // Verify authentication
+    const authHeader = request.headers.get("authorization");
+    const userId = await getUserIdFromToken(authHeader);
     
-    // 🔒 Proteksi Akses Admin (Mencegah modifikasi data oleh non-admin)
-    const auth = await validateAdminRole(supabase);
-    if (!auth.isValid) {
-      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Forbidden: No valid token" },
+        { status: 403 }
+      );
     }
 
-    // 🛡️ Pencegahan DoS (Denial of Service) via Payload Besar
-    // Jika user mengirimkan text berukuran puluhan Megabyte, parsing JSON mentah bisa membuat server crash/hang.
+    // Verify admin role
+    if (!(await isUserAdmin(userId))) {
+      return NextResponse.json(
+        { success: false, error: "Forbidden: Admin access required" },
+        { status: 403 }
+      );
+    }
+
     const contentType = request.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return NextResponse.json({ success: false, error: "Invalid Content-Type" }, { status: 400 });
+    if (!contentType?.includes("application/json")) {
+      return NextResponse.json(
+        { success: false, error: "Invalid Content-Type" },
+        { status: 400 }
+      );
     }
 
     const json = await request.json();
-    
-    // 📋 Validasi Struktur & Tipe Data Input via Zod
     const parseResult = contactSettingsSchema.safeParse(json);
+    
     if (!parseResult.success) {
       return NextResponse.json(
         { success: false, error: parseResult.error.flatten().fieldErrors },
@@ -77,18 +97,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // 🚀 Jalankan Update menggunakan data yang SUDAH TERSANITASI oleh Zod (parseResult.data)
-    // Jangan pernah melemparkan objek `json` mentah langsung ke service database.
-    const updatedData = await settingsService.updateSettings(supabase, parseResult.data);
-    
+    const updatedData = await settingsService.updateSettings(
+      createSupabaseAdminClient(),
+      parseResult.data,
+      userId
+    );
     return NextResponse.json({ success: true, data: updatedData });
   } catch (error: any) {
-    console.error("[CRITICAL API POST SETTINGS ERROR]:", error);
-
-    // 🚨 Sembunyikan pesan error sistem internal/raw database dari client untuk mencegah pencurian informasi (Information Disclosure)
+    console.error("[API POST CONTACT ERROR]:", error);
     return NextResponse.json(
-      { success: false, error: "Gagal menyimpan perubahan ke database." },
+      { success: false, error: "Gagal menyimpan perubahan." },
       { status: 500 }
     );
   }
 }
+
+export const dynamic = "force-dynamic";
