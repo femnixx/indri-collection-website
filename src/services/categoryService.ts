@@ -1,42 +1,70 @@
 import { categoryRepository } from "@/repositories/categoryRepository";
 import { CategoryInput } from "@/validations/categorySchema";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export const categoryService = {
+  /**
+   * Add a new category
+   */
   async addCategory(data: CategoryInput) {
-    const { data: category, error } = await categoryRepository.create({ 
-      name: data.name 
-    });
-    
-    if (error) throw error;
-    return category;
+    try {
+      if (!data.name || data.name.trim().length === 0) {
+        throw new Error("Nama kategori tidak boleh kosong.");
+      }
+
+      const category = await categoryRepository.create({ 
+        name: data.name.trim()
+      });
+      
+      if (!category) {
+        throw new Error("Gagal membuat kategori.");
+      }
+
+      return category;
+    } catch (error: any) {
+      console.error("[SERVICE ERROR] Add category:", error.message);
+      throw error;
+    }
   },
 
-  async renameCategory(oldName: string, newName: string) {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  /**
+   * Rename an existing category
+   * Note: Auth check already done in route handler
+   */
+  async renameCategory(oldName: string, newName: string, userId: string) {
+    try {
+      if (!oldName?.trim() || !newName?.trim()) {
+        throw new Error("Nama lama dan baru wajib diisi.");
+      }
 
-    // Re-validate Admin access at the service level
-    const userRole = user?.app_metadata?.role || user?.user_metadata?.role;
-    if (userRole !== "admin") {
-      throw new Error("Unauthorized: Anda tidak memiliki akses admin.");
+      console.log(`[SERVICE] User ${userId} renaming category: "${oldName}" → "${newName}"`);
+      
+      await categoryRepository.rename(oldName, newName);
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error("[SERVICE ERROR] Rename category:", error.message);
+      throw error;
     }
-
-    // Call the repository to perform the storage copy/move
-    await categoryRepository.rename(oldName, newName);
   },
 
-  async deleteCategory(id: number, name: string) {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  /**
+   * Delete a category
+   * Note: Auth check already done in route handler
+   */
+  async deleteCategory(id: number, name: string, userId: string) {
+    try {
+      if (!id || !name?.trim()) {
+        throw new Error("ID dan nama kategori diperlukan.");
+      }
 
-    // Re-validate Admin access at the service level
-    const userRole = user?.app_metadata?.role || user?.user_metadata?.role;
-    if (userRole !== "admin") {
-      throw new Error("Unauthorized: Anda tidak memiliki akses admin.");
+      console.log(`[SERVICE] User ${userId} deleting category: "${name}" (ID: ${id})`);
+      
+      await categoryRepository.delete(id, name);
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error("[SERVICE ERROR] Delete category:", error.message);
+      throw error;
     }
-
-    // Call the repository to perform the storage and database cleanup
-    await categoryRepository.delete(id, name);
   }
 };

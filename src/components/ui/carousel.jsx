@@ -32,6 +32,7 @@ function Carousel({
     ...opts,
     axis: orientation === "horizontal" ? "x" : "y",
   }, plugins)
+  
   const [canScrollPrev, setCanScrollPrev] = React.useState(false)
   const [canScrollNext, setCanScrollNext] = React.useState(false)
 
@@ -194,7 +195,6 @@ function CarouselNext({
       className={cn("absolute touch-manipulation rounded-full", orientation === "horizontal"
         ? "top-1/2 -right-12 -translate-y-1/2"
         : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90", className)}
-      // 💡 Perbaikan: Mengembalikan false saat SSR agar struktur DOM klop tanpa atribut disabled
       disabled={mounted ? !canScrollNext : false}
       onClick={scrollNext}
       {...props}>

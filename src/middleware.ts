@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   // 1. Create a clone of headers to modify for the downstream request
   const requestHeaders = new Headers(request.headers);
 
-  // 2. Inisialisasi Supabase client
+  // 2. Initialize Supabase client
   let response = NextResponse.next({
     request: { headers: requestHeaders },
   });
@@ -31,22 +31,12 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // 3. Validasi user
-  const { data: { user } } = await supabase.auth.getUser();
+  // 3. Validate user session
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // 4. Update requestHeaders if user exists
-  if (user) {
-    requestHeaders.set('x-user-id', user.id);
-    
-    // We recreate the response with the updated headers
-    response = NextResponse.next({
-      request: { headers: requestHeaders },
-    });
-  }
-
-  // 5. Proteksi Rute Admin
+  // 4. Protect Admin Routes (only check if user has session)
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!user && request.nextUrl.pathname !== '/admin/login') {
+    if (!session && request.nextUrl.pathname !== '/admin/login') {
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
       return NextResponse.redirect(url);

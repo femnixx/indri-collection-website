@@ -10,15 +10,11 @@ async function getUserIdFromToken(token: string | null): Promise<string | null> 
   if (!token) return null;
   
   try {
-    // Remove "Bearer " prefix if present
     const actualToken = token.startsWith("Bearer ") ? token.slice(7) : token;
-    
     const supabaseAdmin = createSupabaseAdminClient();
-    // Verify the token using Supabase
     const { data, error } = await supabaseAdmin.auth.getUser(actualToken);
     
     if (error || !data.user) {
-      console.log("DEBUG [API]: Token verification failed:", error?.message);
       return null;
     }
     
@@ -29,6 +25,9 @@ async function getUserIdFromToken(token: string | null): Promise<string | null> 
   }
 }
 
+/**
+ * Check if user is admin
+ */
 async function isUserAdmin(userId: string) {
   const supabaseAdmin = createSupabaseAdminClient();
   const { data: admin, error } = await supabaseAdmin
@@ -37,43 +36,43 @@ async function isUserAdmin(userId: string) {
     .eq("id", userId)
     .maybeSingle();
   
-  console.log("DEBUG [API]: Checking UserID =", userId);
-  console.log("DEBUG [API]: Data from DB =", admin);
-  console.log("DEBUG [API]: DB Error =", error);
-  
   return admin?.role === "admin";
 }
 
-export async function GET(request: Request) {
+/**
+ * GET - Public endpoint for contact info (no auth required)
+ */
+export async function GET() {
   try {
-    // Extract token from Authorization header
-    const authHeader = request.headers.get("authorization");
-    const userId = await getUserIdFromToken(authHeader);
-
-    if (!userId || !(await isUserAdmin(userId))) {
-      return NextResponse.json(
-        { success: false, error: "Forbidden: Admin access required" },
-        { status: 403 }
-      );
-    }
-
     const data = await settingsService.getSettings(createSupabaseAdminClient());
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error("[API GET SETTINGS ERROR]:", error);
+    console.error("[API GET CONTACT ERROR]:", error);
     return NextResponse.json(
-      { success: false, error: "Gagal memuat pengaturan." },
+      { success: false, error: "Gagal memuat informasi kontak." },
       { status: 500 }
     );
   }
 }
 
+/**
+ * POST - Admin only (requires authentication)
+ */
 export async function POST(request: Request) {
   try {
+    // Verify authentication
     const authHeader = request.headers.get("authorization");
     const userId = await getUserIdFromToken(authHeader);
     
-    if (!userId || !(await isUserAdmin(userId))) {
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Forbidden: No valid token" },
+        { status: 403 }
+      );
+    }
+
+    // Verify admin role
+    if (!(await isUserAdmin(userId))) {
       return NextResponse.json(
         { success: false, error: "Forbidden: Admin access required" },
         { status: 403 }
@@ -98,15 +97,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ CHANGED: Pass userId to the service
     const updatedData = await settingsService.updateSettings(
       createSupabaseAdminClient(),
       parseResult.data,
-      userId // ← Add this parameter
+      userId
     );
     return NextResponse.json({ success: true, data: updatedData });
   } catch (error: any) {
-    console.error("[CRITICAL API POST SETTINGS ERROR]:", error);
+    console.error("[API POST CONTACT ERROR]:", error);
     return NextResponse.json(
       { success: false, error: "Gagal menyimpan perubahan." },
       { status: 500 }

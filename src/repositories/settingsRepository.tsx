@@ -27,47 +27,56 @@ export class RepositoryError extends Error {
   }
 }
 
-const BASE_API_URL = '/api/admin/settings';
+// ✅ API URL for contact settings
+const API_URL = '/api/admin/contact';
 
 export const settingsRepository = {
- async fetchPublicSettings(): Promise<ShopSettingsData> {
-  try {
+  /**
+   * Fetch public contact settings (no auth required)
+   */
+  async fetchPublicSettings(): Promise<ShopSettingsData> {
+    try {
+      // Public endpoint - no auth required for GET
+      const response = await fetch(API_URL, { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+      
+      const json = await response.json();
+      return json.success && json.data 
+        ? { ...FALLBACK_SETTINGS, ...json.data } 
+        : FALLBACK_SETTINGS;
+    } catch (error) {
+      console.error("Error fetching public settings:", error);
+      return FALLBACK_SETTINGS;
+    }
+  },
+
+  /**
+   * Save settings (admin only - requires auth)
+   * ✅ CHANGED: Uses PATCH instead of POST to update existing record
+   */
+  async saveSettings(data: ShopSettingsData): Promise<ShopSettingsData> {
     const { data: { session } } = await supabaseAuth.auth.getSession();
-    
-    const headers: HeadersInit = { 'Content-Type': 'application/json' };
-    if (session) {
-      headers['Authorization'] = `Bearer ${session.access_token}`;
+    if (!session) throw new RepositoryError("Unauthorized", 401);
+
+    const response = await fetch(API_URL, {
+      method: 'PATCH',  // ✅ CHANGED: Use PATCH instead of POST
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}` 
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "Gagal menyimpan data.");
+      throw new RepositoryError(errorText, response.status);
     }
 
-    const response = await fetch(BASE_API_URL, { method: 'GET', headers });
-    if (!response.ok) throw new Error(`HTTP status ${response.status}`);
-    
     const json = await response.json();
-    return json.success && json.data ? { ...FALLBACK_SETTINGS, ...json.data } : FALLBACK_SETTINGS;
-  } catch (error) {
-    return FALLBACK_SETTINGS;
+    return json.data;
   }
-},
-
-async saveSettings(data: ShopSettingsData): Promise<ShopSettingsData> {
-  const { data: { session } } = await supabaseAuth.auth.getSession();
-  if (!session) throw new RepositoryError("Unauthorized", 401);
-
-  const response = await fetch(BASE_API_URL, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}` 
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "Gagal menyimpan data.");
-    throw new RepositoryError(errorText, response.status);
-  }
-
-  const json = await response.json();
-  return json.data;
-}
 };
