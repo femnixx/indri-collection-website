@@ -4,9 +4,11 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import Script from "next/script";
-import LayoutContentWrapper from "../components/layout/LayoutContentWrapper";
+import LayoutClientProvider from "@/components/layout/LayoutContentWrapper"; // Gunakan alias '@' agar path absolut aman
 
 export const metadata: Metadata = {
+  // PERBAIKAN 1: Menyelesaikan warning metadataBase
+  metadataBase: new URL("https://indricollection.my.id"),
   title: "Indri Collection | Konveksi Inklusif & Jasa Jahit Malang",
   description:
     "Indri Collection adalah usaha konveksi pemberdayaan disabilitas di Malang, menghasilkan ragam pakaian dengan kualitas jahitan premium yang penuh ketelitian.",
@@ -83,9 +85,12 @@ export default function RootLayout({
             gtag('config', 'G-2CG3BPV3HG');
           `}
         </Script>
-        <LayoutContentWrapper>
+        
+        {/* Menggunakan Client Provider yang sudah diperbaiki path-nya */}
+        <LayoutClientProvider>
           {children}
-        </LayoutContentWrapper>
+        </LayoutClientProvider>
+        
         <Analytics />
         <SpeedInsights />
       </body>

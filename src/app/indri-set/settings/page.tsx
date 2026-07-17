@@ -5,10 +5,6 @@ import { useRouter } from "next/navigation";
 import { Mail, MessageSquare, Clock, Save, CheckCircle2, AlertCircle, MapPin } from "lucide-react";
 import { settingsRepository, FALLBACK_SETTINGS } from "@/repositories/settingsRepository";
 
-<<<<<<< HEAD:src/app/admin/settings/page.tsx
-=======
-
->>>>>>> origin/dev-v2:src/app/indri-set/settings/page.tsx
 const InstagramIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -27,12 +23,8 @@ const InstagramIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
 );
 
 export default function AdminSettingsPage() {
-<<<<<<< HEAD:src/app/admin/settings/page.tsx
-  const router = useRouter();
+  const router = useRouter(); // Correctly initialized the router hook
 
-  // Menggunakan data fallback terpusat sebagai initial state jika db error/kosong
-=======
->>>>>>> origin/dev-v2:src/app/indri-set/settings/page.tsx
   const [formData, setFormData] = useState({
     email_address: FALLBACK_SETTINGS.email_address,
     instagram_url: FALLBACK_SETTINGS.instagram_url,
@@ -47,7 +39,6 @@ export default function AdminSettingsPage() {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // 🔄 Memuat data dari database, otomatis aman menggunakan fallback jika request gagal
   useEffect(() => {
     async function loadSettings() {
       try {
@@ -69,7 +60,6 @@ export default function AdminSettingsPage() {
     loadSettings();
   }, []);
 
-  // Handler serbaguna untuk input text maupun textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -78,7 +68,6 @@ export default function AdminSettingsPage() {
     }));
   };
 
-  // 🚀 Submit data ke API Route Handler via Repository
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -87,22 +76,12 @@ export default function AdminSettingsPage() {
     try {
       await settingsRepository.saveSettings(formData);
       setShowSuccessToast(true);
-<<<<<<< HEAD:src/app/admin/settings/page.tsx
-      
-      // Auto-hide sukses banner setelah 3 detik
-=======
-
-      // Auto-hide success message after 3 seconds
->>>>>>> origin/dev-v2:src/app/indri-set/settings/page.tsx
       setTimeout(() => setShowSuccessToast(false), 3000);
     } catch (err: any) {
       console.error(err);
 
-      // 🚨 Deteksi error 401 Unauthorized dari Repository kustom
       if (err.status === 401 || err.message === "Unauthorized") {
         setErrorMessage("Sesi Anda telah berakhir atau Anda belum login. Mengalihkan ke halaman login...");
-        
-        // Beri jeda 2 detik agar admin dapat membaca pesan error sebelum dipindahkan
         setTimeout(() => {
           router.replace("/admin/login");
         }, 2000);
@@ -110,7 +89,6 @@ export default function AdminSettingsPage() {
       }
       
       try {
-        // Mencoba mengurai error object bawaan Zod schema server
         const parsedErrors = JSON.parse(err.message);
         const firstErrorKey = Object.keys(parsedErrors)[0];
         setErrorMessage(`${firstErrorKey}: ${parsedErrors[firstErrorKey][0]}`);
@@ -133,7 +111,6 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8 max-w-3xl">
-      {/* 🌟 Header Section */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">
           Pengaturan Panel & Kontak
@@ -143,7 +120,6 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      {/* 🎉 Success Notification Banner */}
       {showSuccessToast && (
         <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl shadow-xs animate-fade-in">
           <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
@@ -153,7 +129,6 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      {/* ⚠️ Error Notification Banner */}
       {errorMessage && (
         <div className="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl shadow-xs animate-fade-in">
           <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
@@ -161,14 +136,12 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      {/* 📝 Config Form */}
       <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50 pb-3">
           Tautan Media Sosial & Kontak
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Email Input */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-700 tracking-wide block">
               Email Indri Collection
@@ -189,7 +162,6 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
-          {/* Instagram URL */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-700 tracking-wide block">
               Tautan Profile Instagram
@@ -210,7 +182,6 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
-          {/* TikTok URL */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-700 tracking-wide block">
               Tautan Profile TikTok
@@ -231,7 +202,6 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
-          {/* WhatsApp Direct Line */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-700 tracking-wide block">
               Nomor WhatsApp (Akses Chat Langsung)
@@ -260,7 +230,6 @@ export default function AdminSettingsPage() {
           Informasi Tambahan
         </h3>
 
-        {/* 📍 Alamat Toko Input (Baru Ditambahkan) */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-700 tracking-wide block">
             Alamat Lengkap Toko
@@ -281,7 +250,6 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Jam Operasional Input */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-700 tracking-wide block">
             Jam Operasional Toko
@@ -302,13 +270,13 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Form CTA Submission Drawer */}
         <div className="flex items-center justify-end pt-4 border-t border-gray-50">
           <button
             type="submit"
             disabled={isSaving}
-            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-600/10 hover:bg-blue-700 transition-all cursor-pointer ${isSaving ? "opacity-70 cursor-not-allowed" : ""
-              }`}
+            className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-600/10 hover:bg-blue-700 transition-all cursor-pointer ${
+              isSaving ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
             {isSaving ? (
               <>

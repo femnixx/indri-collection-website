@@ -28,7 +28,7 @@ export default function OurCollection() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products');
+        const response = await fetch('/api/admin/products');
         const result = await response.json();
         if (!result.success) throw new Error(result.error || 'Gagal mengambil data');
         setProducts(result.data);
