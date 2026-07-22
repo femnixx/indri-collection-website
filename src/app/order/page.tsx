@@ -19,6 +19,7 @@ export default function OrderPage() {
   const [isLoadingImages, setIsLoadingImages] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [selectedCustomerFile, setSelectedCustomerFile] = useState<File | null>(null);
   const [customerImagePreview, setCustomerImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -100,35 +101,38 @@ export default function OrderPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
-      // Compress image before upload
       try {
+        // Compress image to reduce ImgBB upload time/size
         const compressedFile = await processAndCompressImage(file);
-
-        // Upload via file-based storage API route → returns a visitable URL
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', compressedFile);
-        uploadFormData.append('folder', 'customer_orders');
-
-        const uploadRes = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: uploadFormData,
-        });
-
-        const uploadResult = await uploadRes.json();
-        if (!uploadRes.ok || !uploadResult.success) {
-          throw new Error(uploadResult.error || 'Gagal mengunggah gambar');
-        }
-
-        // Store the visitable URL
-        setCustomerImagePreview(uploadResult.url);
+        setSelectedCustomerFile(compressedFile);
+        setCustomerImagePreview(URL.createObjectURL(compressedFile));
       } catch (error: any) {
-        console.error('Error uploading image:', error);
-        alert('Gagal mengunggah gambar. Silakan coba lagi.');
+        console.error('Error processing image:', error);
+        alert('Gagal memproses gambar. Silakan coba lagi.');
       }
     }
   };
 
-  const formatWhatsAppMessage = (): string => {
+  const uploadCustomerSample = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const IMGBB_API_KEY = "5af485e9f355d915139ad29a8c5360b1";
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const json = await res.json();
+    if (!json.success) {
+      console.error("ImgBB upload error:", json);
+      throw new Error("Gagal mengunggah contoh gambar.");
+    }
+
+    return json.data.url;
+  };
+
+  const formatWhatsAppMessage = (sampleImageUrl: string): string => {
     const lines = [
       "🛍 *Pesanan Baru*",
       `👤 *Nama:* ${formData.customer_name}`,
@@ -153,8 +157,8 @@ export default function OrderPage() {
 
     lines.push(`🔢 *Jumlah:* ${formData.quantity} pcs`);
 
-    if (customerImagePreview) {
-      lines.push(`📷 *Gambar/Contoh:* ${customerImagePreview}`);
+    if (sampleImageUrl && sampleImageUrl !== '-') {
+      lines.push(`📷 *Gambar/Contoh:* ${sampleImageUrl}`);
     }
 
     lines.push("", "Mohon konfirmasi pesanan ini. Terima kasih! 🙏");
@@ -173,7 +177,20 @@ export default function OrderPage() {
     setIsSubmitting(true);
 
     try {
-      const message = formatWhatsAppMessage();
+      let sampleImageUrl = '-';
+
+      if (selectedCustomerFile) {
+        try {
+          sampleImageUrl = await uploadCustomerSample(selectedCustomerFile);
+        } catch (err) {
+          console.error('Upload failed:', err);
+          alert('Gagal mengunggah contoh gambar.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      const message = formatWhatsAppMessage(sampleImageUrl);
 
       if (!whatsappNumber) {
         alert('Nomor WhatsApp belum dikonfigurasi. Silakan hubungi kami melalui halaman kontak.');
@@ -200,6 +217,7 @@ export default function OrderPage() {
         product_category: '',
       });
       setSelectedProduct(null);
+      setSelectedCustomerFile(null);
       setCustomerImagePreview(null);
     } catch (error: any) {
       alert(error.message || 'Gagal membuat pesanan. Silakan coba lagi.');
