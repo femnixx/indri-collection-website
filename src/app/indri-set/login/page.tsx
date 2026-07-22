@@ -1,18 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-<<<<<<< HEAD
-import { supabase } from "@/lib/supabaseClient"; 
-=======
-<<<<<<<< HEAD:src/app/admin/login/page.tsx
-import { supabase } from "@/lib/supabaseClient"; 
-========
-import { supabaseAuth } from "@/lib/supabaseClient"; 
->>>>>>>> origin/dev-v2:src/app/indri-set/login/page.tsx
->>>>>>> origin/dev-v2
+import { supabaseAuth } from "@/lib/supabaseClient";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -22,12 +14,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-<<<<<<< HEAD
-  const handleLogin = async (e: React.FormEvent) => {
-=======
-<<<<<<<< HEAD:src/app/admin/login/page.tsx
-  const handleLogin = async (e: React.FormEvent) => {
-========
   useEffect(() => {
     const checkActiveSession = async () => {
       const { data: { session } } = await supabaseAuth.auth.getSession();
@@ -38,25 +24,14 @@ export default function AdminLoginPage() {
     checkActiveSession();
   }, [router]);
 
-  const handleLogin = async (e) => {
->>>>>>>> origin/dev-v2:src/app/indri-set/login/page.tsx
->>>>>>> origin/dev-v2
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-<<<<<<< HEAD
       // 1. Otentikasi kredensial langsung ke Supabase Auth Server
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-=======
-<<<<<<<< HEAD:src/app/admin/login/page.tsx
-      // 1. Otentikasi kredensial langsung ke Supabase Auth Server
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-========
       const { data, error: authError } = await supabaseAuth.auth.signInWithPassword({
->>>>>>>> origin/dev-v2:src/app/indri-set/login/page.tsx
->>>>>>> origin/dev-v2
         email: email,
         password: password,
       });
@@ -70,20 +45,10 @@ export default function AdminLoginPage() {
       // 2. Jika sesi valid, cookies otomatis tersimpan oleh createBrowserClient.
       // Cukup arahkan rute dan paksa Next.js melakukan server-refresh untuk membaca cookie baru.
       if (data?.session) {
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/app/admin/login/page.tsx
->>>>>>> origin/dev-v2
-        router.push("/admin");
+        router.replace("/indri-set");
         router.refresh();
       } else {
         setIsLoading(false);
-<<<<<<< HEAD
-=======
-========
-        router.replace("/indri-set");
->>>>>>>> origin/dev-v2:src/app/indri-set/login/page.tsx
->>>>>>> origin/dev-v2
       }
     } catch (err) {
       setError("Terjadi kesalahan sistem saat mencoba login.");
@@ -105,13 +70,6 @@ export default function AdminLoginPage() {
       </Link>
 
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 z-10">
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/app/admin/login/page.tsx
-========
-        
->>>>>>>> origin/dev-v2:src/app/indri-set/login/page.tsx
->>>>>>> origin/dev-v2
         <div className="text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-2.5 shadow-md shadow-blue-500/20">
             <img src="/logo-indri.svg" alt="Logo Indri" className="h-full w-full object-contain brightness-0 invert" />

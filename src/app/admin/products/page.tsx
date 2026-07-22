@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, FolderPlus, Loader2, Trash2, Edit2, X } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseData as supabase } from "@/lib/supabaseClient";
 import { processAndCompressImage } from "@/lib/imageUtils";
 
 export default function ManageCollectionPage() {

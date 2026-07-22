@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabaseData } from '@/lib/supabaseClient';
+import { createSupabaseServerClient } from '@/lib/supabaseServer';
 export const dynamic = 'force-dynamic';
 export async function GET() {
-  const { data, error } = await supabaseData
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
     .from('products')
     .select('*, categories(*)')
     .eq('is_published', true)
@@ -13,7 +14,7 @@ export async function GET() {
   }
   const productsWithUrls = data.map((product) => {
     if (product.image_url) {
-      const { data: publicUrlData } = supabaseData.storage
+      const { data: publicUrlData } = supabase.storage
         .from('product-images') 
         .getPublicUrl(product.image_url);
 

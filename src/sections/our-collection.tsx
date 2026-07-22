@@ -10,39 +10,49 @@ import {
   CarouselPrevious,
 } from '../components/ui/carousel';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
-import { Product } from '@/types/database';
+import { supabaseData as supabase } from '@/lib/supabaseClient';
 
 export default function OurCollection() {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [sectionRef, isVisible] = useScrollReveal(0.08);
-  const [isMobile, setIsMobile] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [images, setImages] = useState<{ url: string; category?: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAllImages = async () => {
+      const allImages: { url: string; category?: string }[] = [];
+      
       try {
-        const response = await fetch('/api/products');
-        if (!response.ok) throw new Error('Gagal mengambil data produk');
-        const data: Product[] = await response.json();
-        setProducts(data);
+        const { data: folders } = await supabase.storage.from('products').list();
+        
+        if (folders) {
+          for (const folder of folders) {
+            if (folder.id === null && folder.name) {
+              const { data: files } = await supabase.storage.from('products').list(folder.name);
+              
+              if (files) {
+                for (const file of files) {
+                  if (file.name !== '.keep') {
+                    const { data } = supabase.storage.from('products').getPublicUrl(`${folder.name}/${file.name}`);
+                    allImages.push({ url: data.publicUrl, category: folder.name });
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Shuffle images for variety
+        const shuffled = allImages.sort(() => Math.random() - 0.5);
+        setImages(shuffled);
+        console.log(`Loaded ${allImages.length} images from storage bucket`);
       } catch (error) {
-        console.error(error);
+        console.error('Gagal mengambil gambar dari bucket:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+
+    fetchAllImages();
   }, []);
 
   return (
@@ -66,56 +76,100 @@ export default function OurCollection() {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
-        ) : products.length === 0 ? (
-          <p className="text-center text-gray-400">Belum ada koleksi yang dipublikasikan.</p>
+        ) : images.length === 0 ? (
+          <p className="text-center text-gray-400">Tidak ada gambar yang ditampilkan.</p>
         ) : (
-          <div className="relative px-4 md:px-0">
-            <Carousel opts={{ align: 'center', loop: true }} setApi={undefined} plugins={[]} className="w-full">
-              <CarouselContent className="-ml-4 py-8">
-                {products.map((product, index) => (
-                  <CarouselItem key={product.id} className="pl-4 basis-4/5 md:basis-1/3 lg:basis-1/4">
-                    <div
-                      className="group relative overflow-hidden rounded-3xl h-[400px] cursor-pointer shadow-xl transition-all duration-500 ease-out"
-                      style={{
-                        transform: hoveredIdx === index ? 'translateY(-12px)' : 'translateY(0)',
-                      }}
-                      onMouseEnter={() => !isMobile && setHoveredIdx(index)}
-                      onMouseLeave={() => !isMobile && setHoveredIdx(null)}
-                    >
-                      {/* Image Parallax/Zoom Effect */}
-                      <img
-                        src={product.image_url || '/placeholder.png'}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                      />
-                      
-                      {/* Gradient Overlay for Text Readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-                      
-                      {/* Text Content */}
-                      <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                        <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                          {product.categories?.name || 'Koleksi'}
-                        </span>
-                        <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
-                          {product.name}
-                        </h3>
-                        {product.price && (
-                          <p className="text-gray-300 font-medium">
-                            Rp {product.price.toLocaleString('id-ID')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex absolute -left-4 top-1/2 bg-white text-gray-600 hover:text-black hover:bg-gray-50 shadow-xl border-0 w-14 h-14 cursor-pointer scale-110" />
-              <CarouselNext className="hidden md:flex absolute -right-4 top-1/2 bg-white text-gray-600 hover:text-black hover:bg-gray-50 shadow-xl border-0 w-14 h-14 cursor-pointer scale-110" />
-            </Carousel>
-          </div>
+          <InfiniteCarousel images={images} />
         )}
       </div>
     </section>
+  );
+}
+
+function InfiniteCarousel({ images }: { images: { url: string; category?: string }[] }) {
+  const [api, setApi] = useState<any>(null);
+
+  useEffect(() => {
+    if (!api) return;
+
+    let isPaused = false;
+    let interval: NodeJS.Timeout;
+
+    const startAutoscroll = () => {
+      interval = setInterval(() => {
+        if (!isPaused) {
+          api.scrollNext();
+        }
+      }, 2500);
+    };
+
+    const stopAutoscroll = () => {
+      if (interval) clearInterval(interval);
+    };
+
+    startAutoscroll();
+
+    const root = api.rootNode();
+    if (root) {
+      root.addEventListener('mouseenter', () => { isPaused = true; });
+      root.addEventListener('mouseleave', () => { isPaused = false; });
+    }
+
+    return () => {
+      stopAutoscroll();
+      if (root) {
+        root.removeEventListener('mouseenter', () => { isPaused = true; });
+        root.removeEventListener('mouseleave', () => { isPaused = false; });
+      }
+    };
+  }, [api]);
+
+  // Repeat images many times to create a truly infinite feel
+  const REPEAT_COUNT = 10;
+  const repeatedImages = Array.from({ length: REPEAT_COUNT }).flatMap((_, i) =>
+    images.map((item, index) => ({
+      ...item,
+      _key: `${i}-${item.url}-${index}`
+    }))
+  );
+
+  return (
+    <Carousel 
+      opts={{ 
+        align: 'start', 
+        loop: true,
+        slidesToScroll: 1,
+      }} 
+      setApi={setApi} 
+      plugins={[]} 
+      className="w-full"
+    >
+      <CarouselContent className="py-4">
+        {repeatedImages.map((item, index) => (
+          <CarouselItem key={item._key} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 pl-4">
+            <div className="group relative overflow-hidden rounded-3xl h-[400px] cursor-pointer shadow-xl transition-all duration-500 ease-out">
+              <img
+                src={item.url || '/placeholder.png'}
+                alt={item.category || 'Koleksi'}
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              />
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                  {item.category ? item.category.replace(/_/g, ' ') : 'Koleksi'}
+                </span>
+                <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
+                  {item.category ? item.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Koleksi'}
+                </h3>
+              </div>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="hidden md:flex absolute -left-4 top-1/2 bg-white text-gray-600 hover:text-black hover:bg-gray-50 shadow-xl border-0 w-14 h-14 cursor-pointer scale-110" />
+      <CarouselNext className="hidden md:flex absolute -right-4 top-1/2 bg-white text-gray-600 hover:text-black hover:bg-gray-50 shadow-xl border-0 w-14 h-14 cursor-pointer scale-110" />
+    </Carousel>
   );
 }

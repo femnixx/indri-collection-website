@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { createSupabaseServerClient } from '@/lib/supabaseServer';
 
 export async function POST(req: Request) {
   try {
+    const supabase = await createSupabaseServerClient();
     const formData = await req.formData();
     const file = formData.get('file') as File;
     

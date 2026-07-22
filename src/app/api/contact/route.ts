@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabaseData } from '@/lib/supabaseClient';
+import { createSupabaseServerClient } from '@/lib/supabaseServer';
 
 export async function GET() {
-  const { data, error } = await supabaseData
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
     .from('contact_info')
     .select('*')
     .single();

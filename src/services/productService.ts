@@ -2,6 +2,10 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { productRepository } from "@/repositories/productRepository";
 
 export const productService = {
+  async getAllCategoriesWithProducts() {
+    return productRepository.getAllCategoriesWithProducts();
+  },
+
   async addProduct(
     productData: { 
       name: string; 
