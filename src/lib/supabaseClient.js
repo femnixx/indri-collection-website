@@ -1,18 +1,18 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 
-// Kredensial Auth 
-const supabaseAuthUrl = process.env.NEXT_PUBLIC_SUPABASE_AUTH_URL;
-const supabaseAuthAnonKey = process.env.NEXT_PUBLIC_SUPABASE_AUTH_ANON_KEY;
+// Ambil variabel environment bawaan dari .env.local
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Kredensial DB & Storage
-const supabaseDataUrl = process.env.NEXT_PUBLIC_SUPABASE_DB_URL;
-const supabaseDataAnonKey = process.env.NEXT_PUBLIC_SUPABASE_DB_ANON_KEY;
-
-if (!supabaseAuthUrl || !supabaseDataUrl) {
+if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    "Peringatan: Kredensial Supabase tidak lengkap di environment variables. Pastikan .env.local sudah dikonfigurasi dengan benar."
+    "Peringatan: NEXT_PUBLIC_SUPABASE_URL atau NEXT_PUBLIC_SUPABASE_ANON_KEY belum terpasang di .env.local Anda."
   );
 }
 
-export const supabaseAuth = createClient(supabaseAuthUrl || "", supabaseAuthAnonKey || "");
-export const supabaseData = createClient(supabaseDataUrl || "", supabaseDataAnonKey || "");
+// Gunakan variabel yang sama untuk kedua client agar kode halaman kelola koleksi tidak error/patah
+const validUrl = supabaseUrl || "https://placeholder-project.supabase.co";
+const validKey = supabaseAnonKey || "placeholder-key";
+
+export const supabaseAuth = createClient(validUrl, validKey);
+export const supabaseData = createClient(validUrl, validKey);

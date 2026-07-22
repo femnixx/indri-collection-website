@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { productRepository } from "@/repositories/productRepository";
 
 export const productService = {
@@ -7,20 +7,15 @@ export const productService = {
   },
 
   async addProduct(
-    productData: { 
-      name: string; 
-      description?: string; 
-      category_id: string; 
-      is_published: boolean 
-    }, 
+    productData: { name: string; description?: string; category_id: string | number; is_published: boolean }, 
     userId: string, 
     file: File | null, 
-    categoryId: string 
+    categoryId: string | number
   ) {
-    const supabase = await createSupabaseServerClient();
+    const supabaseAdmin = createSupabaseAdminClient();
     
     // 1. Fetch category
-    const { data: category, error: catError } = await supabase
+    const { data: category, error: catError } = await supabaseAdmin
       .from("categories")
       .select("name")
       .eq("id", categoryId)
@@ -28,45 +23,43 @@ export const productService = {
 
     if (catError || !category) throw new Error("Kategori tidak ditemukan.");
 
-    const folderName = category.name.replace(/\s+/g, '_').toLowerCase();
-    let imageUrl = "";
-
     // 2. Handle File Upload
-    if (file) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${folderName}/${fileName}`;
+    if (!file) throw new Error("File is required.");
+    
+    const folderName = category.name.replace(/\s+/g, '_').toLowerCase();
+    const filePath = `${folderName}/${Date.now()}_${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
 
-      const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseAdmin.storage
         .from('products')
-        .upload(filePath, file);
+        .upload(filePath, file, { contentType: 'image/webp', upsert: true });
 
-      if (uploadError) throw uploadError;
+    if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from('products').getPublicUrl(filePath);
-      imageUrl = data.publicUrl;
-      console.log("File uploaded, URL generated:", imageUrl);
-    } else {
-      throw new Error("File is required.");
-    }
-
-    // 3. Save to DB with explicit await
+    // 3. Save to DB
     try {
-      const result = await productRepository.create({ 
+      return await productRepository.create({ 
         name: productData.name,
         description: productData.description || "",
-        category_id: categoryId,
+        category_id: categoryId.toString(),
         is_published: productData.is_published,
-        image_url: imageUrl,
+        image_url: filePath,  // ✅ Store the file path, not full URL
         created_by: userId
       });
-      
-      console.log("Database insert successful:", result);
-      return result;
     } catch (dbError) {
-      console.error("Database insert failed, cleaning up storage...");
-      // Optional: Add logic here to delete the uploaded file if DB insert fails
+      await supabaseAdmin.storage.from('products').remove([filePath]);
       throw dbError; 
     }
+  },
+
+  // ✅ NEW: Convert file paths to public URLs
+  async resolveImageUrl(filePath: string | null): Promise<string> {
+    if (!filePath) return "/placeholder.png";
+
+    const supabaseAdmin = createSupabaseAdminClient();
+    const { data } = supabaseAdmin.storage
+      .from("products")
+      .getPublicUrl(filePath);  // ✅ Returns public URL (never expires)
+
+    return data.publicUrl;
   }
 };
