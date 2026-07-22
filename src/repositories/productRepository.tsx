@@ -3,27 +3,20 @@ import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/sup
 function getStoragePathFromUrl(publicUrl: string): string | null {
   if (!publicUrl) return null;
   try {
-    // 1. Try exact split on standard Supabase storage path
-    const splitKey = "/storage/v1/object/public/products/";
-    if (publicUrl.includes(splitKey)) {
-      const rawPath = publicUrl.split(splitKey)[1];
-      return rawPath ? decodeURIComponent(rawPath) : null;
-    }
+    // 1. Strip query parameters (tokens, versioning, cache-busters)
+    const cleanUrl = publicUrl.split('?')[0];
 
-    // 2. Fallback regex match for relative folder/file.ext path inside products bucket
-    // Matches paths like: celana/sim1.png or baju/sim1.jpg
-    const match = publicUrl.match(/\/products\/([^\/]+\/[^\?#]+)/);
-    if (match && match[1]) {
-      return decodeURIComponent(match[1]);
-    }
+    // 2. Locate bucket marker "/products/"
+    const marker = "/products/";
+    const index = cleanUrl.indexOf(marker);
 
-    // 3. Fallback: URL path parsing
-    const url = new URL(publicUrl);
-    const pathParts = url.pathname.split('/');
-    const productsIndex = pathParts.indexOf('products');
-    if (productsIndex !== -1 && pathParts.length > productsIndex + 2) {
-      const relativePath = pathParts.slice(productsIndex + 1).join('/');
-      return decodeURIComponent(relativePath);
+    if (index !== -1) {
+      // Extract everything after /products/ (e.g., "kategori/31.png")
+      const rawPath = cleanUrl.substring(index + marker.length);
+      
+      // Decode percent-encoding (e.g., %20 -> space) and remove leading slashes
+      const sanitizedPath = decodeURIComponent(rawPath).replace(/^\/+/, '');
+      return sanitizedPath || null;
     }
 
     return null;
@@ -107,8 +100,12 @@ export const productRepository = {
     if (product?.image_url) {
       const relativePath = getStoragePathFromUrl(product.image_url);
       
+      console.log(`[STORAGE] Deleting for product ID ${id}:`);
+      console.log(`[STORAGE] Full DB URL: "${product.image_url}"`);
+      console.log(`[STORAGE] Target Relative Path: "${relativePath}"`);
+
       if (relativePath) {
-        console.log(`[STORAGE] Attempting to remove path from bucket: "${relativePath}"`);
+        // relativePath MUST be "folder_name/filename.ext"
         const { data: removeData, error: storageErr } = await supabaseAdmin.storage
           .from("products")
           .remove([relativePath]);
@@ -116,7 +113,7 @@ export const productRepository = {
         if (storageErr) {
           console.error("[STORAGE] Failed to delete image file:", storageErr);
         } else {
-          console.log("[STORAGE] Successfully deleted file:", removeData);
+          console.log("[STORAGE] Successfully deleted file from bucket:", removeData);
         }
       } else {
         console.warn(`[STORAGE] Could not parse relative storage path from URL: ${product.image_url}`);
