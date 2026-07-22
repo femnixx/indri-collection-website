@@ -41,7 +41,7 @@ export const categoryRepository = {
 
     if (updateError) throw updateError;
 
-    // 2. List files in old folder, move each to new folder, and update product image URLs
+    // 2. List files in old folder, move each to new folder
     const { data: files, error: listError } = await supabase.storage
       .from("products")
       .list(oldFolder);
@@ -73,6 +73,32 @@ export const categoryRepository = {
       if (removeError) {
         console.error("[STORAGE] Remove error:", removeError);
         throw removeError;
+      }
+    }
+
+    // 3. Update image_url in products table for all products in this category
+    if (oldFolder !== newFolder) {
+      const { data: products, error: prodFetchErr } = await supabase
+        .from("products")
+        .select("id, image_url")
+        .eq("category_id", (await supabase.from("categories").select("id").eq("name", newName).single()).data?.id);
+
+      if (prodFetchErr) {
+        console.error("[DB] Failed to fetch products for URL update:", prodFetchErr);
+      } else if (products) {
+        for (const prod of products) {
+          if (!prod.image_url) continue;
+          const updatedUrl = prod.image_url.replace(`/products/${oldFolder}/`, `/products/${newFolder}/`);
+          if (updatedUrl !== prod.image_url) {
+            const { error: updateUrlErr } = await supabase
+              .from("products")
+              .update({ image_url: updatedUrl })
+              .eq("id", prod.id);
+            if (updateUrlErr) {
+              console.error("[DB] Failed to update product image_url:", updateUrlErr);
+            }
+          }
+        }
       }
     }
   },

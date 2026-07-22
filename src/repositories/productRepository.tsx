@@ -1,5 +1,11 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 
+function getStoragePathFromUrl(publicUrl: string): string | null {
+  if (!publicUrl) return null;
+  const parts = publicUrl.split("/storage/v1/object/public/products/");
+  return parts[1] || null;
+}
+
 export const productRepository = {
   // Create a new product — uploads the file to the Supabase Storage bucket "products"
   // inside a category folder AND inserts the product metadata into the database.
@@ -66,11 +72,15 @@ export const productRepository = {
     const { data: product } = await supabaseAdmin.from("products").select("image_url").eq("id", id).single();
 
     if (product?.image_url) {
-      // Remove file from Supabase Storage
-      const path = new URL(product.image_url).pathname;
-      const storagePath = path.replace(/^\/storage\/v1\/object\/public\/products\//, "");
-      if (storagePath.startsWith("products/")) {
-        await supabaseAdmin.storage.from("products").remove([storagePath]);
+      // Remove file from Supabase Storage using relative path
+      const relativePath = getStoragePathFromUrl(product.image_url);
+      if (relativePath) {
+        const { error: storageErr } = await supabaseAdmin.storage
+          .from("products")
+          .remove([relativePath]);
+        if (storageErr) {
+          console.error("Failed to delete storage file:", storageErr);
+        }
       }
     }
 
