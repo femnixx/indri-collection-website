@@ -10,7 +10,7 @@ async function verifyAdmin() {
   try {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { authorized: false, status: 401, error: "Unauthorized" };
     }
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     const json = await request.json();
     const parseResult = categorySchema.safeParse(json);
-    
+
     if (!parseResult.success) {
       return NextResponse.json(
         { success: false, error: parseResult.error.flatten().fieldErrors },
@@ -59,17 +59,6 @@ export async function POST(request: Request) {
 
     const categoryResult = await categoryService.addCategory(parseResult.data);
     const category = categoryResult.data;
-
-    const folderName = category.name.replace(/\s+/g, '_').toLowerCase();
-    const supabaseServer = await createSupabaseServerClient();
-    const { error: storageError } = await supabaseServer.storage
-      .from('products')
-      .upload(`${folderName}/.keep`, new Blob([''], { type: 'text/plain' }), { upsert: true });
-
-    if (storageError) {
-      console.error("[CATEGORY POST] Storage creation failed:", storageError.message);
-      throw new Error("Gagal membuat folder storage.");
-    }
 
     return NextResponse.json({ success: true, data: category });
   } catch (error: any) {
@@ -92,7 +81,7 @@ export async function PATCH(request: Request) {
     }
 
     const { oldName, newName } = await request.json();
-    
+
     if (!oldName?.trim() || !newName?.trim()) {
       return NextResponse.json(
         { success: false, error: "Nama lama dan baru wajib diisi." },
@@ -123,7 +112,7 @@ export async function DELETE(request: Request) {
     }
 
     const { id, name } = await request.json();
-    
+
     if (!id || !name?.trim()) {
       return NextResponse.json(
         { success: false, error: "ID dan nama kategori diperlukan." },

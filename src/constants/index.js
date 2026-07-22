@@ -2,6 +2,7 @@ export const navLinks = [
   { href: "#home", label: "Beranda" },
   { href: "#about-us", label: "Tentang Kami" },
   { href: "#product", label: "Produk" },
+  { href: "/order", label: "Pesan" },
   { href: "#testimonial", label: "Testimoni" },
   { href: "#contact", label: "Kontak" },
 ];

@@ -1,23 +1,77 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export const productRepository = {
-  async create(data: { name: string; description?: string; category_id: string; is_published: boolean; image_url: string; created_by: string; }) {
+  // Create a new product — uploads the file to the Supabase Storage bucket "products"
+  // inside a category folder AND inserts the product metadata into the database.
+  async create(
+    data: { name: string; description?: string; category_id: string; is_published: boolean; image_url: string; created_by: string; },
+    file: File | null,
+    categoryName: string
+  ) {
     const supabaseAdmin = createSupabaseAdminClient();
-    const { data: record, error } = await supabaseAdmin
-      .from("products")
-      .insert([data])
-      .select()
-      .single();
-    if (error) throw error;
-    return record;
+
+    // 1. Upload the file to the Supabase Storage bucket "products"
+    // inside a category folder: products/{categoryName}/{productName}.{ext}
+    let imageUrl = data.image_url;
+    if (file) {
+      // Normalize folder and file names to safe slugs
+      const folderName = categoryName.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '');
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
+      const sanitizedName = data.name.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase().replace(/_+/g, '_');
+      const fileName = sanitizedName.endsWith(`.${fileExt}`) ? sanitizedName : `${sanitizedName}.${fileExt}`;
+      const filePath = `${folderName}/${fileName}`;
+
+      // Upload file to Supabase Storage
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("products")
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("[STORAGE] Upload error:", uploadError);
+        throw new Error(`Gagal mengunggah gambar: ${uploadError.message}`);
+      }
+
+      // Public URL of the uploaded file
+      const url = supabaseAdmin.storage.from("products").getPublicUrl(filePath);
+      imageUrl = url.data.publicUrl;
+    }
+
+    // 2. Save to the database "products" table
+    try {
+      const { data: record, error } = await supabaseAdmin
+        .from("products")
+        .insert([{ ...data, image_url: imageUrl }])
+        .select()
+        .single();
+      if (error) throw error;
+      return record;
+    } catch (dbError) {
+      // Clean up the uploaded file from Supabase Storage if the database insert fails
+      if (file && imageUrl) {
+        const path = new URL(imageUrl).pathname;
+        const storagePath = path.replace(/^\/storage\/v1\/object\/public\/products\//, "");
+        if (storagePath.startsWith("products/")) {
+          await supabaseAdmin.storage.from("products").remove([storagePath]);
+        }
+      }
+      throw dbError;
+    }
   },
 
   async delete(id: string) {
     const supabaseAdmin = createSupabaseAdminClient();
     const { data: product } = await supabaseAdmin.from("products").select("image_url").eq("id", id).single();
-    
+
     if (product?.image_url) {
-      await supabaseAdmin.storage.from("products").remove([product.image_url]);
+      // Remove file from Supabase Storage
+      const path = new URL(product.image_url).pathname;
+      const storagePath = path.replace(/^\/storage\/v1\/object\/public\/products\//, "");
+      if (storagePath.startsWith("products/")) {
+        await supabaseAdmin.storage.from("products").remove([storagePath]);
+      }
     }
 
     const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
@@ -48,28 +102,11 @@ export const productRepository = {
       return acc;
     }, {});
 
-    const storage = supabase.storage.from("products");
-
-    const enriched = await Promise.all(
-      categories.map(async (cat) => {
-        const rawProducts = productsByCategory[cat.id] || [];
-        const products = await Promise.all(
-          rawProducts.map(async (product) => {
-            let imageUrl = product.image_url;
-            if (!imageUrl) {
-              const folder = cat.name.replace(/\s+/g, "_").toLowerCase();
-              const { data: files } = await storage.list(folder);
-              const productFile = files?.find((f) => f.name !== ".keep");
-              if (productFile) {
-                imageUrl = storage.getPublicUrl(`${folder}/${productFile.name}`).data.publicUrl;
-              }
-            }
-            return { ...product, image_url: imageUrl };
-          })
-        );
-        return { ...cat, products };
-      })
-    );
+    // image_url is already a visitable URL stored in the database — no Supabase storage needed
+    const enriched = categories.map((cat) => {
+      const rawProducts = productsByCategory[cat.id] || [];
+      return { ...cat, products: rawProducts };
+    });
 
     return enriched;
   }
