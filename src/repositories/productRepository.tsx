@@ -3,16 +3,30 @@ import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/sup
 function getStoragePathFromUrl(publicUrl: string): string | null {
   if (!publicUrl) return null;
   try {
-    // Standard Supabase public URL structure:
-    // https://<project>.supabase.co/storage/v1/object/public/products/folder/file.png
+    // 1. Try exact split on standard Supabase storage path
     const splitKey = "/storage/v1/object/public/products/";
-    if (!publicUrl.includes(splitKey)) return null;
+    if (publicUrl.includes(splitKey)) {
+      const rawPath = publicUrl.split(splitKey)[1];
+      return rawPath ? decodeURIComponent(rawPath) : null;
+    }
 
-    const rawPath = publicUrl.split(splitKey)[1];
-    if (!rawPath) return null;
+    // 2. Fallback regex match for relative folder/file.ext path inside products bucket
+    // Matches paths like: celana/sim1.png or baju/sim1.jpg
+    const match = publicUrl.match(/\/products\/([^\/]+\/[^\?#]+)/);
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]);
+    }
 
-    // Decoding URL-encoded characters (e.g., %20 -> space) is critical for .remove() to work
-    return decodeURIComponent(rawPath);
+    // 3. Fallback: URL path parsing
+    const url = new URL(publicUrl);
+    const pathParts = url.pathname.split('/');
+    const productsIndex = pathParts.indexOf('products');
+    if (productsIndex !== -1 && pathParts.length > productsIndex + 2) {
+      const relativePath = pathParts.slice(productsIndex + 1).join('/');
+      return decodeURIComponent(relativePath);
+    }
+
+    return null;
   } catch (e) {
     console.error("[STORAGE] Failed to parse storage path from URL:", e);
     return null;
@@ -77,7 +91,7 @@ export const productRepository = {
   async delete(id: string) {
     const supabaseAdmin = createSupabaseAdminClient();
 
-    // 1. Fetch image_url before removing the record
+    // 1. Fetch image_url BEFORE deleting the database record
     const { data: product, error: fetchErr } = await supabaseAdmin
       .from("products")
       .select("image_url")
@@ -86,21 +100,26 @@ export const productRepository = {
 
     if (fetchErr) {
       console.error("[DB] Could not find product to delete:", fetchErr);
+      throw new Error("Produk tidak ditemukan");
     }
 
-    // 2. Remove file from Supabase Storage bucket
+    // 2. Delete file from Storage bucket if image_url exists
     if (product?.image_url) {
       const relativePath = getStoragePathFromUrl(product.image_url);
+      
       if (relativePath) {
-        const { error: storageErr } = await supabaseAdmin.storage
+        console.log(`[STORAGE] Attempting to remove path from bucket: "${relativePath}"`);
+        const { data: removeData, error: storageErr } = await supabaseAdmin.storage
           .from("products")
           .remove([relativePath]);
 
         if (storageErr) {
           console.error("[STORAGE] Failed to delete image file:", storageErr);
         } else {
-          console.log(`[STORAGE] Deleted storage file: ${relativePath}`);
+          console.log("[STORAGE] Successfully deleted file:", removeData);
         }
+      } else {
+        console.warn(`[STORAGE] Could not parse relative storage path from URL: ${product.image_url}`);
       }
     }
 
