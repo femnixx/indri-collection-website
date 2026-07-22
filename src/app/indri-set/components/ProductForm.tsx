@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseData as supabase } from "@/lib/supabaseClient";
 
 export default function ProductForm({ categories }: { categories: any[] }) {
   const router = useRouter();

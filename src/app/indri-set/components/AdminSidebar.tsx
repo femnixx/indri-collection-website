@@ -25,14 +25,15 @@ export default function AdminSidebar() {
   ];
 
   const handleLogout = async () => {
-  try {
-    await supabaseAuth.auth.signOut();
-    sessionStorage.removeItem("admin_access");
-    router.replace("/admin/login");
-  } catch (error) {
-    console.error("Gagal melakukan proses keluar sesi:", error);
-  }
-};
+    try {
+      await supabaseAuth.auth.signOut();
+      sessionStorage.removeItem("admin_access");
+      router.replace("/indri-set/login");
+    } catch (error) {
+      console.error("Gagal melakukan proses keluar sesi:", error);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-200 md:hidden sticky top-0 z-40 w-full shadow-sm">

@@ -1,13 +1,28 @@
+// src/middleware.ts
+// Security middleware for route protection and session management
+
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  // 1. Create a clone of headers to modify for the downstream request
-  const requestHeaders = new Headers(request.headers);
+// Security headers to add to all responses
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
 
-  // 2. Initialize Supabase client
+export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
-    request: { headers: requestHeaders },
+    request: {
+      headers: request.headers,
+    },
+  });
+
+  // Add security headers
+  Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
+    response.headers.set(key, value);
   });
 
   const supabase = createServerClient(
@@ -22,7 +37,9 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value)
           );
-          response = NextResponse.next({ request });
+          response = NextResponse.next({
+            request,
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -31,14 +48,14 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // 3. Validate user session
-  const { data: { session } } = await supabase.auth.getSession();
+  // 🔒 Using getUser() is required for secure token validation on server side
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // 4. Protect Admin Routes (only check if user has session)
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!session && request.nextUrl.pathname !== '/admin/login') {
+  // Proteksi Halaman Admin - Updated to use /indri-set route
+  if (request.nextUrl.pathname.startsWith('/indri-set')) {
+    if (!user && request.nextUrl.pathname !== '/indri-set/login') {
       const url = request.nextUrl.clone();
-      url.pathname = '/admin/login';
+      url.pathname = '/indri-set/login';
       return NextResponse.redirect(url);
     }
   }

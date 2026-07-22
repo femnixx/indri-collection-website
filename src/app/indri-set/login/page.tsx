@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { supabaseAuth } from "@/lib/supabaseClient"; 
+import { supabaseAuth } from "@/lib/supabaseClient";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -14,7 +14,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Automatically redirect if an active admin session already exists
   useEffect(() => {
     const checkActiveSession = async () => {
       const { data: { session } } = await supabaseAuth.auth.getSession();
@@ -31,7 +30,7 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      // 1. Authenticate credentials directly with Supabase Auth Server
+      // 1. Otentikasi kredensial langsung ke Supabase Auth Server
       const { data, error: authError } = await supabaseAuth.auth.signInWithPassword({
         email: email,
         password: password,
@@ -43,10 +42,10 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // 2. If session is valid, cookies are automatically stored by createBrowserClient.
-      // Navigate to your real indri-set workspace and force Next.js to server-refresh.
+      // 2. Jika sesi valid, cookies otomatis tersimpan oleh createBrowserClient.
+      // Cukup arahkan rute dan paksa Next.js melakukan server-refresh untuk membaca cookie baru.
       if (data?.session) {
-        router.push("/indri-set");
+        router.replace("/indri-set");
         router.refresh();
       } else {
         setIsLoading(false);

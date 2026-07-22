@@ -12,11 +12,11 @@ export default function LayoutContentWrapper({
 }) {
   const pathname = usePathname();
 
-  // Memeriksa apakah rute saat ini diawali dengan "/admin"
-  const isAdminRoute = pathname?.startsWith("/indri-set");
+  // Memeriksa apakah rute saat ini diawali dengan "/admin" atau /indri-set
+  const isAdminOrAdminPanel = pathname?.startsWith("/admin") || pathname?.startsWith("/indri-set");
 
-  // Jika berada di rute /admin, render children langsung TANPA Header & Footer
-  if (isAdminRoute) {
+  // Jika berada di rute /admin atau panel, render children langsung TANPA Header & Footer
+  if (isAdminOrAdminPanel) {
     return <main>{children}</main>;
   }
 

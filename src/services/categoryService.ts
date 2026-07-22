@@ -11,15 +11,15 @@ export const categoryService = {
         throw new Error("Nama kategori tidak boleh kosong.");
       }
 
-      const category = await categoryRepository.create({ 
+      const result = await categoryRepository.create({ 
         name: data.name.trim()
       });
       
-      if (!category) {
+      if (!result.data) {
         throw new Error("Gagal membuat kategori.");
       }
 
-      return category;
+      return result;
     } catch (error: any) {
       console.error("[SERVICE ERROR] Add category:", error.message);
       throw error;
@@ -30,13 +30,13 @@ export const categoryService = {
    * Rename an existing category
    * Note: Auth check already done in route handler
    */
-  async renameCategory(oldName: string, newName: string, userId: string) {
+  async renameCategory(oldName: string, newName: string) {
     try {
       if (!oldName?.trim() || !newName?.trim()) {
         throw new Error("Nama lama dan baru wajib diisi.");
       }
 
-      console.log(`[SERVICE] User ${userId} renaming category: "${oldName}" → "${newName}"`);
+      console.log(`[SERVICE] Renaming category: "${oldName}" → "${newName}"`);
       
       await categoryRepository.rename(oldName, newName);
       
@@ -51,13 +51,13 @@ export const categoryService = {
    * Delete a category
    * Note: Auth check already done in route handler
    */
-  async deleteCategory(id: number, name: string, userId: string) {
+  async deleteCategory(id: number, name: string) {
     try {
       if (!id || !name?.trim()) {
         throw new Error("ID dan nama kategori diperlukan.");
       }
 
-      console.log(`[SERVICE] User ${userId} deleting category: "${name}" (ID: ${id})`);
+      console.log(`[SERVICE] Deleting category: "${name}" (ID: ${id})`);
       
       await categoryRepository.delete(id, name);
       
