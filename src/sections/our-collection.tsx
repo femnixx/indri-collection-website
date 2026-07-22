@@ -10,7 +10,6 @@ import {
   CarouselPrevious,
 } from '../components/ui/carousel';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
-import { supabaseData as supabase } from '@/lib/supabaseClient';
 
 export default function OurCollection() {
   const [sectionRef, isVisible] = useScrollReveal(0.08);
@@ -19,34 +18,30 @@ export default function OurCollection() {
 
   useEffect(() => {
     const fetchAllImages = async () => {
-      const allImages: { url: string; category?: string }[] = [];
-      
       try {
-        const { data: folders } = await supabase.storage.from('products').list();
-        
-        if (folders) {
-          for (const folder of folders) {
-            if (folder.id === null && folder.name) {
-              const { data: files } = await supabase.storage.from('products').list(folder.name);
-              
-              if (files) {
-                for (const file of files) {
-                  if (file.name !== '.keep') {
-                    const publicUrlData = supabase.storage.from('products').getPublicUrl(`${folder.name}/${file.name}`);
-                    allImages.push({ url: publicUrlData.data.publicUrl, category: folder.name });
-                  }
-                }
-              }
-            }
-          }
+        const res = await fetch('/api/products', { cache: 'no-store' });
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.error('Failed to fetch products:', data.error);
+          setIsLoading(false);
+          return;
         }
-        
+
+        // Map products to image objects using the visitable image_url from the database
+        const allImages: { url: string; category?: string }[] = (data || [])
+          .filter((product: any) => product.image_url)
+          .map((product: any) => ({
+            url: product.image_url,
+            category: product.categories?.name || 'Koleksi',
+          }));
+
         // Shuffle images for variety
         const shuffled = allImages.sort(() => Math.random() - 0.5);
         setImages(shuffled);
-        console.log(`Loaded ${allImages.length} images from storage bucket`);
+        console.log(`Loaded ${allImages.length} images from database`);
       } catch (error) {
-        console.error('Gagal mengambil gambar dari bucket:', error);
+        console.error('Gagal mengambil gambar:', error);
       } finally {
         setIsLoading(false);
       }
@@ -134,14 +129,14 @@ function InfiniteCarousel({ images }: { images: { url: string; category?: string
   );
 
   return (
-    <Carousel 
-      opts={{ 
-        align: 'start', 
+    <Carousel
+      opts={{
+        align: 'start',
         loop: true,
         slidesToScroll: 1,
-      }} 
-      setApi={setApi} 
-      plugins={[]} 
+      }}
+      setApi={setApi}
+      plugins={[]}
       className="w-full"
     >
       <CarouselContent className="py-4">
@@ -153,9 +148,9 @@ function InfiniteCarousel({ images }: { images: { url: string; category?: string
                 alt={item.category || 'Koleksi'}
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               />
-              
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-              
+
               <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
                 <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                   {item.category ? item.category.replace(/_/g, ' ') : 'Koleksi'}

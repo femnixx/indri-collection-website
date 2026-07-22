@@ -2,57 +2,60 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, FolderPlus, Loader2, Trash2, Edit2, X } from "lucide-react";
-import { supabaseData as supabase } from "@/lib/supabaseClient";
-import { processAndCompressImage } from "@/lib/imageUtils";
 
 export default function ManageCollectionPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState<any>(null);
   const [allProducts, setAllProducts] = useState<Record<string, any[]>>({});
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [productToReplace, setProductToReplace] = useState<any>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
 
   useEffect(() => {
     fetchInitialData();
   }, []);
 
   const fetchInitialData = async () => {
-    const { data: folderData } = await supabase.storage.from("products").list();
-    if (folderData) {
-      const cats = folderData
-        .filter((f) => f.id === null)
-        .map((f, index) => ({ id: index, name: f.name }));
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/indri-set/products", { cache: "no-store" });
+      const json = await res.json();
+      if (!json.success) {
+        console.error("Failed to load categories:", json.error);
+        return;
+      }
 
-      setCategories(cats);
-      if (cats.length > 0) {
-        setActiveCategory(cats[0]);
+      const groups = json.data || [];
+      setCategories(groups);
+      if (groups.length > 0) {
+        setActiveCategory(groups[0]);
         const productsMap: Record<string, any[]> = {};
-        for (const cat of cats) {
-          productsMap[cat.name] = await fetchProductsForCategory(cat.name);
+        for (const cat of groups) {
+          productsMap[cat.name] = cat.products || [];
         }
         setAllProducts(productsMap);
       }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const fetchProductsForCategory = async (categoryName: string) => {
-    const folderName = categoryName.replace(/\s+/g, "_").toLowerCase();
-    const { data: files } = await supabase.storage.from("products").list(folderName);
-    if (!files) return [];
-
-    return files
-      .filter((f) => f.name !== ".keep")
-      .map((file) => ({
-        ...file,
-        image_url: supabase.storage.from("products").getPublicUrl(`${folderName}/${file.name}`).data.publicUrl,
-        folder: folderName,
-      }));
-  };
-
   const refreshCategory = async (catName: string) => {
-    const products = await fetchProductsForCategory(catName);
-    setAllProducts((prev) => ({ ...prev, [catName]: products }));
+    const res = await fetch("/api/indri-set/products", { cache: "no-store" });
+    const json = await res.json();
+    if (json.success) {
+      const groups = json.data || [];
+      setCategories(groups);
+      const productsMap: Record<string, any[]> = {};
+      for (const g of groups) {
+        productsMap[g.name] = g.products || [];
+      }
+      setAllProducts(productsMap);
+    }
   };
 
   const addCategory = async () => {
@@ -87,27 +90,70 @@ export default function ManageCollectionPage() {
     if (response.ok) fetchInitialData();
   };
 
-  const handleAction = async (file: File, isReplace = false) => {
+  const handleAction = async (file: File) => {
+    if (!activeCategory) return;
+    const productName = prompt("Nama Produk:", "");
+    if (!productName || !productName.trim()) return;
     setIsUploading(true);
     try {
-      const processedFile = await processAndCompressImage(file);
-      const folder = activeCategory.name.replace(/\s+/g, "_").toLowerCase();
+      // Upload file to the storage bucket "products" AND save product to the database
+      // in a single request — the file is saved to public/images/products/{categoryName}/{productName}.{ext}
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("name", productName.trim());
+      formData.append("categoryId", activeCategory.id);
+      formData.append("description", "");
 
-      if (isReplace && productToReplace) {
-        await supabase.storage.from("products").remove([`${folder}/${productToReplace.name}`]);
+      const createRes = await fetch("/api/indri-set/products", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await createRes.json();
+      if (!result.success) {
+        throw new Error(result.error || "Failed to create product");
       }
 
-      await supabase.storage.from("products").upload(`${folder}/${processedFile.name}`, processedFile, {
-        contentType: 'image/webp'
-      });
-      
-      setProductToReplace(null);
       refreshCategory(activeCategory.name);
     } catch (error) {
       console.error("Upload error:", error);
       alert("Gagal memproses gambar.");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleDeleteImage = async (item: any) => {
+    if (!confirm("Hapus gambar ini?")) return;
+    try {
+      await fetch("/api/indri-set/products", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id })
+      });
+      refreshCategory(activeCategory.name);
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Gagal menghapus gambar.");
+    }
+  };
+
+  const handleSaveProductName = async (item: any) => {
+    if (!editingName.trim()) return;
+    try {
+      const res = await fetch("/api/indri-set/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, name: editingName }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Gagal mengubah nama");
+      refreshCategory(activeCategory.name);
+    } catch (error: any) {
+      alert(error.message || "Gagal mengubah nama");
+    } finally {
+      setEditingProductId(null);
+      setEditingName("");
     }
   };
 
@@ -136,11 +182,36 @@ export default function ManageCollectionPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {currentProducts.map((item) => (
-          <div key={item.name} className="group relative border rounded-2xl p-2 bg-white shadow-sm">
+          <div key={item.id || item.name} className="group relative border rounded-2xl p-2 bg-white shadow-sm">
             <img src={item.image_url} className="w-full aspect-square object-cover rounded-xl" />
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
-              <button onClick={async () => { await supabase.storage.from("products").remove([`${item.folder}/${item.name}`]); refreshCategory(activeCategory.name); }} 
+              <button
+                onClick={() => { setEditingProductId(item.id); setEditingName(item.name); }}
+                className="p-2 bg-amber-400 hover:bg-amber-500 text-white rounded-full shadow"
+                title="Edit Nama"
+              >
+                <Edit2 size={16} />
+              </button>
+              <button onClick={() => handleDeleteImage(item)}
                 className="p-2 bg-red-500 text-white rounded-full shadow"><Trash2 size={16} /></button>
+            </div>
+            <div className="mt-2 px-1">
+              {editingProductId === item.id ? (
+                <input
+                  type="text"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveProductName(item);
+                    if (e.key === "Escape") { setEditingProductId(null); setEditingName(""); }
+                  }}
+                  onBlur={() => { setEditingProductId(null); setEditingName(""); }}
+                  className="text-xs w-full px-1 py-0.5 border border-blue-400 rounded focus:outline-none"
+                  autoFocus
+                />
+              ) : (
+                <p className="text-xs font-medium text-slate-600 truncate">{item.name}</p>
+              )}
             </div>
           </div>
         ))}

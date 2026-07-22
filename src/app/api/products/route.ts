@@ -12,15 +12,7 @@ export async function GET() {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  const productsWithUrls = data.map((product) => {
-    if (product.image_url) {
-      const { data: publicUrlData } = supabase.storage
-        .from('product-images') 
-        .getPublicUrl(product.image_url);
 
-      return { ...product, image_url: publicUrlData.publicUrl };
-    }
-    return product;
-  });
-  return NextResponse.json(productsWithUrls);
+  // image_url is already a visitable URL stored in the database
+  return NextResponse.json(data);
 }

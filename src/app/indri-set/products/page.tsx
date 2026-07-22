@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, FolderPlus, Loader2, Trash2, Edit2, X } from "lucide-react";
-import { supabaseData as supabase } from "@/lib/supabaseClient";
-import { processAndCompressImage } from "@/lib/imageUtils";
 
 export default function ManageCollectionPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -13,40 +11,17 @@ export default function ManageCollectionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dupNotification, setDupNotification] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
 
   useEffect(() => {
     loadCategories();
   }, []);
 
-  // Realtime listeners for instant updates
-  useEffect(() => {
-    const channel = supabase
-      .channel("products-admin-changes")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "categories" },
-        () => {
-          loadCategories(false);
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "products" },
-        () => {
-          loadCategories(false);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const loadCategories = async (showLoading = true) => {
     if (showLoading) setIsLoading(true);
     try {
-      const res = await fetch("/api/indri-set/products", { 
+      const res = await fetch("/api/indri-set/products", {
         cache: "no-store",
         next: { revalidate: 0 }
       });
@@ -57,14 +32,12 @@ export default function ManageCollectionPage() {
       }
 
       const groups = json.data || [];
-      console.log("Loaded categories:", groups.map((g: any) => ({ id: g.id, name: g.name, productCount: g.products?.length })));
       setCategories(groups);
-      
+
       // Only set activeCategory if none selected or if it no longer exists
       setActiveCategory((prev: any) => {
         if (!prev) return groups.length > 0 ? groups[0] : null;
         const exists = groups.find((c: any) => c.id === prev.id);
-        // If current active still exists, keep it. Otherwise use first.
         return exists ? prev : (groups.length > 0 ? groups[0] : null);
       });
 
@@ -115,7 +88,7 @@ export default function ManageCollectionPage() {
       setTimeout(() => setDupNotification(null), 3000);
       return;
     }
-    
+
     try {
       await new Promise((resolve, reject) => {
         setTimeout(async () => {
@@ -145,7 +118,7 @@ export default function ManageCollectionPage() {
 
   const deleteCategory = async (cat: any) => {
     if (!confirm(`Hapus folder "${cat.name}" dan semua isinya?`)) return;
-    
+
     try {
       await new Promise((resolve, reject) => {
         setTimeout(async () => {
@@ -175,38 +148,30 @@ export default function ManageCollectionPage() {
 
   const handleUpload = async (file: File) => {
     if (!activeCategory) return;
-    
+
+    const productName = prompt("Nama Produk:", "");
+    if (!productName || !productName.trim()) return;
+
     setIsUploading(true);
     try {
-      const processedFile = await processAndCompressImage(file);
-      const folder = activeCategory.name.replace(/\s+/g, "_").toLowerCase();
-      const newFileName = processedFile.name;
+      // Upload file to the storage bucket "products" AND save product to the database
+      // in a single request — the file is saved to public/images/products/{categoryName}/{productName}.{ext}
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("name", productName.trim());
+      formData.append("categoryId", activeCategory.id);
+      formData.append("description", "");
 
-      // Upload new image to storage
-      const uploadResult = await supabase.storage.from("products").upload(`${folder}/${newFileName}`, processedFile, {
-        contentType: 'image/webp',
-        upsert: true
-      });
-
-      if (uploadResult.error) throw uploadResult.error;
-
-      const publicUrl = supabase.storage.from("products").getPublicUrl(`${folder}/${newFileName}`).data.publicUrl;
-
-      // Create product record in database
       const createRes = await fetch("/api/indri-set/products", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newFileName,
-          categoryId: activeCategory.id,
-          image_url: publicUrl
-        })
+        body: formData,
       });
-      
-      if (!createRes.ok) {
-        throw new Error("Failed to create product in database");
+
+      const result = await createRes.json();
+      if (!result.success) {
+        throw new Error(result.error || "Failed to create product");
       }
-      
+
       // Refresh products list but keep current category selected
       await loadCategories(false);
     } catch (error) {
@@ -220,27 +185,39 @@ export default function ManageCollectionPage() {
   const handleDeleteImage = async (item: any) => {
     if (!confirm("Hapus gambar ini?")) return;
     if (!activeCategory) return;
-    
-    const folder = activeCategory.name.replace(/\s+/g, "_").toLowerCase();
-    
+
     try {
-      // Remove from storage
-      await supabase.storage.from("products").remove([`${folder}/${item.name}`]);
-      
-      // Delete from database - this is the source of truth
-      if (item.id) {
-        await fetch("/api/indri-set/products", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: item.id })
-        });
-      }
-      
+      // Delete from database — productRepository.delete also removes the file from disk
+      await fetch("/api/indri-set/products", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id })
+      });
+
       // Refresh products list but keep current category selected
       await loadCategories(false);
     } catch (error) {
       console.error("Delete error:", error);
       alert("Gagal menghapus gambar.");
+    }
+  };
+
+  const handleSaveProductName = async (item: any) => {
+    if (!editingName.trim()) return;
+    try {
+      const res = await fetch("/api/indri-set/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, name: editingName }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Gagal mengubah nama");
+      await loadCategories(false);
+    } catch (error: any) {
+      alert(error.message || "Gagal mengubah nama");
+    } finally {
+      setEditingProductId(null);
+      setEditingName("");
     }
   };
 
@@ -253,8 +230,8 @@ export default function ManageCollectionPage() {
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
           {activeCategory?.name || "Pilih Kategori"}
         </h1>
-        <button 
-          onClick={addCategory} 
+        <button
+          onClick={addCategory}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
         >
           <FolderPlus size={16} /> Buat Folder
@@ -333,8 +310,15 @@ export default function ManageCollectionPage() {
                 <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <button 
-                  onClick={() => handleDeleteImage(item)} 
+                <button
+                  onClick={() => { setEditingProductId(item.id); setEditingName(item.name); }}
+                  className="p-2 bg-amber-400 hover:bg-amber-500 text-white rounded-full shadow-lg transition-colors"
+                  title="Edit Nama"
+                >
+                  <Edit2 size={16} />
+                </button>
+                <button
+                  onClick={() => handleDeleteImage(item)}
                   className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors"
                   title="Hapus"
                 >
@@ -342,12 +326,27 @@ export default function ManageCollectionPage() {
                 </button>
               </div>
               <div className="mt-2 px-1">
-                <p className="text-xs font-medium text-slate-600 truncate">{item.name}</p>
+                {editingProductId === item.id ? (
+                  <input
+                    type="text"
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSaveProductName(item);
+                      if (e.key === "Escape") { setEditingProductId(null); setEditingName(""); }
+                    }}
+                    onBlur={() => { setEditingProductId(null); setEditingName(""); }}
+                    className="text-xs w-full px-1 py-0.5 border border-blue-400 rounded focus:outline-none"
+                    autoFocus
+                  />
+                ) : (
+                  <p className="text-xs font-medium text-slate-600 truncate">{item.name}</p>
+                )}
               </div>
             </div>
           ))}
-          <button 
-            onClick={() => fileInputRef.current?.click()} 
+          <button
+            onClick={() => fileInputRef.current?.click()}
             className="rounded-2xl flex flex-col items-center justify-center aspect-square transition-colors border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50/50"
           >
             {isUploading ? <Loader2 className="animate-spin text-blue-600" /> : <Plus size={32} className="text-slate-400" />}
@@ -355,11 +354,11 @@ export default function ManageCollectionPage() {
         </div>
       )}
 
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={(e) => e.target.files && handleUpload(e.target.files[0])} 
-        className="hidden" 
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => e.target.files && handleUpload(e.target.files[0])}
+        className="hidden"
       />
     </div>
   );

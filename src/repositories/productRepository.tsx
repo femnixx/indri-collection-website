@@ -1,27 +1,129 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 
-export const productRepository = {
-  async create(data: { name: string; description?: string; category_id: string; is_published: boolean; image_url: string; created_by: string; }) {
-    const supabaseAdmin = createSupabaseAdminClient();
-    const { data: record, error } = await supabaseAdmin
-      .from("products")
-      .insert([data])
-      .select()
-      .single();
-    if (error) throw error;
-    return record;
-  },
+function getStoragePathFromUrl(publicUrl: string): string | null {
+  if (!publicUrl) return null;
+  try {
+    // 1. Strip query parameters (tokens, versioning, cache-busters)
+    const cleanUrl = publicUrl.split('?')[0];
 
-  async delete(id: string) {
-    const supabaseAdmin = createSupabaseAdminClient();
-    const { data: product } = await supabaseAdmin.from("products").select("image_url").eq("id", id).single();
-    
-    if (product?.image_url) {
-      await supabaseAdmin.storage.from("products").remove([product.image_url]);
+    // 2. Locate bucket marker "/products/"
+    const marker = "/products/";
+    const index = cleanUrl.indexOf(marker);
+
+    if (index !== -1) {
+      // Extract everything after /products/ (e.g., "kategori/31.png")
+      const rawPath = cleanUrl.substring(index + marker.length);
+      
+      // Decode percent-encoding (e.g., %20 -> space) and remove leading slashes
+      const sanitizedPath = decodeURIComponent(rawPath).replace(/^\/+/, '');
+      return sanitizedPath || null;
     }
 
+    return null;
+  } catch (e) {
+    console.error("[STORAGE] Failed to parse storage path from URL:", e);
+    return null;
+  }
+}
+
+export const productRepository = {
+  // Create a new product — uploads file to "products" bucket and inserts metadata to DB
+  async create(
+    data: { name: string; description?: string; category_id: string; is_published: boolean; image_url: string; created_by: string; },
+    file: File | null,
+    categoryName: string
+  ) {
+    const supabaseAdmin = createSupabaseAdminClient();
+
+    let imageUrl = data.image_url;
+    if (file) {
+      const folderName = categoryName.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '');
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
+      const sanitizedName = data.name.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase().replace(/_+/g, '_');
+      const fileName = sanitizedName.endsWith(`.${fileExt}`) ? sanitizedName : `${sanitizedName}.${fileExt}`;
+      const filePath = `${folderName}/${fileName}`;
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("products")
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("[STORAGE] Upload error:", uploadError);
+        throw new Error(`Gagal mengunggah gambar: ${uploadError.message}`);
+      }
+
+      const url = supabaseAdmin.storage.from("products").getPublicUrl(filePath);
+      imageUrl = url.data.publicUrl;
+    }
+
+    try {
+      const { data: record, error } = await supabaseAdmin
+        .from("products")
+        .insert([{ ...data, image_url: imageUrl }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return record;
+    } catch (dbError) {
+      // Cleanup uploaded image from bucket if DB insert fails
+      if (file && imageUrl) {
+        const storagePath = getStoragePathFromUrl(imageUrl);
+        if (storagePath) {
+          await supabaseAdmin.storage.from("products").remove([storagePath]);
+        }
+      }
+      throw dbError;
+    }
+  },
+
+  // Delete product record and its image from Supabase Storage
+  async delete(id: string) {
+    const supabaseAdmin = createSupabaseAdminClient();
+
+    // 1. Fetch image_url BEFORE deleting the database record
+    const { data: product, error: fetchErr } = await supabaseAdmin
+      .from("products")
+      .select("image_url")
+      .eq("id", id)
+      .single();
+
+    if (fetchErr) {
+      console.error("[DB] Could not find product to delete:", fetchErr);
+      throw new Error("Produk tidak ditemukan");
+    }
+
+    // 2. Delete file from Storage bucket if image_url exists
+    if (product?.image_url) {
+      const relativePath = getStoragePathFromUrl(product.image_url);
+      
+      console.log(`[STORAGE] Deleting for product ID ${id}:`);
+      console.log(`[STORAGE] Full DB URL: "${product.image_url}"`);
+      console.log(`[STORAGE] Target Relative Path: "${relativePath}"`);
+
+      if (relativePath) {
+        // relativePath MUST be "folder_name/filename.ext"
+        const { data: removeData, error: storageErr } = await supabaseAdmin.storage
+          .from("products")
+          .remove([relativePath]);
+
+        if (storageErr) {
+          console.error("[STORAGE] Failed to delete image file:", storageErr);
+        } else {
+          console.log("[STORAGE] Successfully deleted file from bucket:", removeData);
+        }
+      } else {
+        console.warn(`[STORAGE] Could not parse relative storage path from URL: ${product.image_url}`);
+      }
+    }
+
+    // 3. Delete database record
     const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
     if (error) throw error;
+
     return { success: true };
   },
 
@@ -48,28 +150,10 @@ export const productRepository = {
       return acc;
     }, {});
 
-    const storage = supabase.storage.from("products");
-
-    const enriched = await Promise.all(
-      categories.map(async (cat) => {
-        const rawProducts = productsByCategory[cat.id] || [];
-        const products = await Promise.all(
-          rawProducts.map(async (product) => {
-            let imageUrl = product.image_url;
-            if (!imageUrl) {
-              const folder = cat.name.replace(/\s+/g, "_").toLowerCase();
-              const { data: files } = await storage.list(folder);
-              const productFile = files?.find((f) => f.name !== ".keep");
-              if (productFile) {
-                imageUrl = storage.getPublicUrl(`${folder}/${productFile.name}`).data.publicUrl;
-              }
-            }
-            return { ...product, image_url: imageUrl };
-          })
-        );
-        return { ...cat, products };
-      })
-    );
+    const enriched = categories.map((cat) => {
+      const rawProducts = productsByCategory[cat.id] || [];
+      return { ...cat, products: rawProducts };
+    });
 
     return enriched;
   }

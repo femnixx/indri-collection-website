@@ -38,47 +38,35 @@ export async function GET() {
   }
 }
 
+// POST: Upload file to the storage bucket "products" AND save product to the database
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const auth = await authorizeAdmin(supabase);
   if (!auth.authorized) return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
 
   try {
-    const body = await request.json();
-    const { name, categoryId, image_url } = body;
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
+    const name = formData.get("name") as string | null;
+    const categoryId = formData.get("categoryId") as string | null;
+    const description = formData.get("description") as string | null;
 
-    if (!name || !categoryId || !image_url) {
-      return NextResponse.json({ success: false, error: "Name, categoryId, and image_url are required" }, { status: 400 });
+    if (!name || !categoryId || !file) {
+      return NextResponse.json({ success: false, error: "Name, categoryId, and file are required" }, { status: 400 });
     }
 
-    // Verify category exists
-    const { data: category, error: catError } = await supabase
-      .from("categories")
-      .select("id, name")
-      .eq("id", categoryId)
-      .single();
+    // productService.addProduct handles:
+    // 1. Fetching the category to get its name
+    // 2. Saving the file to the storage bucket (public/images/products/{categoryName}/{productName}.{ext})
+    // 3. Saving the product metadata to the database "products" table
+    const data = await productService.addProduct(
+      { name, description: description || "", category_id: categoryId, is_published: true },
+      auth.user!.id,
+      file,
+      categoryId
+    );
 
-    if (catError || !category) {
-      return NextResponse.json({ success: false, error: "Category not found" }, { status: 404 });
-    }
-
-    // Save to products database table
-    const { data: product, error: createError } = await supabase
-      .from("products")
-      .insert({
-        name,
-        description: "",
-        category_id: categoryId,
-        is_published: true,
-        image_url: image_url,
-        created_by: auth.user!.id,
-      })
-      .select()
-      .single();
-
-    if (createError) throw createError;
-
-    return NextResponse.json({ success: true, data: product });
+    return NextResponse.json({ success: true, data });
   } catch (error: any) {
     console.error("[API] Create product error:", error);
     return NextResponse.json({ success: false, error: error.message || "Failed to create product" }, { status: 500 });
@@ -93,14 +81,17 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const { id, name, image_url } = body;
-    
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (image_url !== undefined) updateData.image_url = image_url;
-    
-    const { error } = await supabase.from("products").update(updateData).eq("id", id);
 
-    if (error) throw error;
+    if (name !== undefined) {
+      // Rename product: update database "products" table AND rename the image file
+      // inside the category folder in the storage bucket
+      await productService.renameProduct(id, name);
+    } else if (image_url !== undefined) {
+      // Only update image_url in the database
+      const { error } = await supabase.from("products").update({ image_url }).eq("id", id);
+      if (error) throw error;
+    }
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("[API] Update product error:", error);
@@ -115,11 +106,11 @@ export async function DELETE(request: Request) {
 
   try {
     const { id } = await request.json();
-    const { error } = await supabase.from("products").delete().eq("id", id);
+    await productService.deleteProduct(id);
 
-    if (error) throw error;
     return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to delete product" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[API] Delete product error:", error);
+    return NextResponse.json({ success: false, error: error.message || "Failed to delete product" }, { status: 500 });
   }
 }

@@ -75,9 +75,9 @@ export async function PUT(request: Request) {
 
   try {
     const { id, name } = await request.json();
-    const { error } = await supabase.from("products").update({ name }).eq("id", id);
-    
-    if (error) throw error;
+    // Rename product: update database "products" table AND rename the image file
+    // inside the category folder in the storage bucket
+    await productService.renameProduct(id, name);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ success: false, error: "Failed to update" }, { status: 500 });
@@ -92,11 +92,11 @@ export async function DELETE(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
-  
+
   if (!id) return NextResponse.json({ success: false, error: "Missing product ID" }, { status: 400 });
 
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  
+
   return NextResponse.json({ success: true });
 }
