@@ -150,6 +150,10 @@ export default function AdminSettingsPage() {
 
       {/* 📝 Config Form */}
       <form onSubmit={handleSubmit} className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl text-sm font-medium">
+          Untuk mengganti nama sosial media, hanya ganti namanya saja, tidak perlu URL/linknya.
+        </div>
+
         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50 pb-3">
           Tautan Media Sosial & Kontak
         </h3>
