@@ -6,6 +6,10 @@ export const productService = {
     return productRepository.getAllCategoriesWithProducts();
   },
 
+  async deleteProduct(id: string) {
+    return productRepository.delete(id);
+  },
+
   async addProduct(
     productData: { name: string; description?: string; category_id: string | number; is_published: boolean },
     userId: string,
