@@ -117,8 +117,12 @@ export default function OrderPage() {
     const formData = new FormData();
     formData.append("image", file);
 
-    const IMGBB_API_KEY = "5af485e9f355d915139ad29a8c5360b1";
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+    if (!apiKey) {
+      throw new Error("IMGBB API key is missing in environment variables.");
+    }
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
       method: "POST",
       body: formData,
     });
