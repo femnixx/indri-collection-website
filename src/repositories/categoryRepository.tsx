@@ -1,9 +1,9 @@
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 
 export const categoryRepository = {
   // Create a new category in the database
   async create(data: { name: string }) {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabaseAdminClient();
     return await supabase
       .from("categories")
       .insert({ name: data.name })
@@ -13,7 +13,7 @@ export const categoryRepository = {
 
   // Rename a category folder in storage and database
   async rename(oldName: string, newName: string) {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabaseAdminClient();
     const oldFolder = oldName.replace(/\s+/g, '_').toLowerCase();
     const newFolder = newName.replace(/\s+/g, '_').toLowerCase();
 
@@ -51,7 +51,7 @@ export const categoryRepository = {
   },
 
   async delete(id: number, name: string) {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabaseAdminClient();
     const folderName = name.replace(/\s+/g, '_').toLowerCase();
 
     // 1. List and remove all files in the folder

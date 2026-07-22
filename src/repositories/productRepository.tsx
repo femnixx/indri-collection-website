@@ -1,4 +1,4 @@
-import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export const productRepository = {
   async create(data: { name: string; description?: string; category_id: string; is_published: boolean; image_url: string; created_by: string; }) {

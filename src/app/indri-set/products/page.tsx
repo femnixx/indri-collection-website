@@ -95,6 +95,7 @@ export default function ManageCollectionPage() {
     const response = await fetch("/api/admin/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: trimmed }),
     });
     const result = await response.json();
@@ -122,6 +123,7 @@ export default function ManageCollectionPage() {
             const response = await fetch("/api/admin/categories", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({ oldName, newName: trimmed }),
             });
             const result = await response.json();
@@ -151,6 +153,7 @@ export default function ManageCollectionPage() {
             const response = await fetch("/api/admin/categories", {
               method: "DELETE",
               headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({ id: cat.id, name: cat.name }),
             });
             const result = await response.json();

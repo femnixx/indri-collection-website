@@ -32,8 +32,8 @@ export default function OurCollection() {
               if (files) {
                 for (const file of files) {
                   if (file.name !== '.keep') {
-                    const { data } = supabase.storage.from('products').getPublicUrl(`${folder.name}/${file.name}`);
-                    allImages.push({ url: data.publicUrl, category: folder.name });
+                    const publicUrlData = supabase.storage.from('products').getPublicUrl(`${folder.name}/${file.name}`);
+                    allImages.push({ url: publicUrlData.data.publicUrl, category: folder.name });
                   }
                 }
               }
