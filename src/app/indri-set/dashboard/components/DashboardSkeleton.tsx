@@ -1,7 +1,7 @@
 import React from "react";
 
 function Block({ className }: { className: string }) {
-  return <div className={`animate-pulse bg-gray-100 rounded-xl ${className}`} />;
+  return <div className={`animate-pulse bg-slate-light rounded-xl ${className}`} />;
 }
 
 export default function DashboardSkeleton() {

@@ -57,8 +57,8 @@ export default function LineChart({ data }: LineChartProps) {
       >
         <defs>
           <linearGradient id="gradViews" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+            <stop offset="0%" stopColor="var(--color-accent)" />
+            <stop offset="100%" stopColor="var(--color-accent)" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="gradVisitors" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#10b981" />
@@ -69,8 +69,8 @@ export default function LineChart({ data }: LineChartProps) {
         {/* Y-axis grid & labels */}
         {yTicks.map((tick) => (
           <g key={tick}>
-            <line x1={PAD.left} x2={PAD.left + INNER_W} y1={yAt(tick)} y2={yAt(tick)} stroke="#f1f5f9" strokeWidth={1} />
-            <text x={PAD.left - 8} y={yAt(tick) + 4} textAnchor="end" fontSize={10} fill="#94a3b8">
+            <line x1={PAD.left} x2={PAD.left + INNER_W} y1={yAt(tick)} y2={yAt(tick)} stroke="var(--color-slate-light)" strokeWidth={1} />
+            <text x={PAD.left - 8} y={yAt(tick) + 4} textAnchor="end" fontSize={10} fill="var(--color-slate-muted)">
               {formatAxisValue(tick)}
             </text>
           </g>
@@ -78,24 +78,24 @@ export default function LineChart({ data }: LineChartProps) {
 
         {/* X-axis labels */}
         {xLabelIndices.map((i) => (
-          <text key={i} x={xAt(i)} y={H - 6} textAnchor="middle" fontSize={10} fill="#94a3b8">
+          <text key={i} x={xAt(i)} y={H - 6} textAnchor="middle" fontSize={10} fill="var(--color-slate-muted)">
             {formatAxisDate(data[i].date)}
           </text>
         ))}
 
         {/* Fill areas */}
-        <path d={fillD("views")} fill="url(#gradViews)" opacity={0.25} />
-        <path d={fillD("visitors")} fill="url(#gradVisitors)" opacity={0.25} />
+        <path d={fillD("views")} fill="url(#gradViews)" opacity={0.2} />
+        <path d={fillD("visitors")} fill="url(#gradVisitors)" opacity={0.2} />
 
         {/* Lines */}
-        <path d={pathD("views")} fill="none" stroke="#6366f1" strokeWidth={2} strokeLinejoin="round" />
-        <path d={pathD("visitors")} fill="none" stroke="#10b981" strokeWidth={2} strokeLinejoin="round" />
+        <path d={pathD("views")} fill="none" stroke="var(--color-accent)" strokeWidth={2.5} strokeLinejoin="round" />
+        <path d={pathD("visitors")} fill="none" stroke="#10b981" strokeWidth={2.5} strokeLinejoin="round" />
 
         {/* Hover crosshair & dots */}
         {hoverIdx !== null && (
           <>
-            <line x1={xAt(hoverIdx)} x2={xAt(hoverIdx)} y1={PAD.top} y2={PAD.top + INNER_H} stroke="#cbd5e1" strokeWidth={1} strokeDasharray="4 2" />
-            <circle cx={xAt(hoverIdx)} cy={yAt(data[hoverIdx].views)} r={4} fill="#6366f1" />
+            <line x1={xAt(hoverIdx)} x2={xAt(hoverIdx)} y1={PAD.top} y2={PAD.top + INNER_H} stroke="var(--color-slate-muted)" opacity={0.4} strokeWidth={1} strokeDasharray="4 2" />
+            <circle cx={xAt(hoverIdx)} cy={yAt(data[hoverIdx].views)} r={4} fill="var(--color-accent)" />
             <circle cx={xAt(hoverIdx)} cy={yAt(data[hoverIdx].visitors)} r={4} fill="#10b981" />
           </>
         )}
@@ -117,25 +117,25 @@ export default function LineChart({ data }: LineChartProps) {
       {/* Floating tooltip */}
       {hovered !== null && hoverIdx !== null && (
         <div
-          className="absolute pointer-events-none z-10 bg-gray-900 text-white text-xs rounded-xl px-3 py-2 shadow-xl whitespace-nowrap"
+          className="absolute pointer-events-none z-10 bg-primary text-white text-xs rounded-xl px-3 py-8 shadow-xl border border-slate-light/10 whitespace-nowrap"
           style={{
             left: `${(xAt(hoverIdx) / W) * 100}%`,
             top: `${(yAt(hovered.visitors) / H) * 100}%`,
             transform: "translate(-50%, -130%)",
           }}
         >
-          <p className="font-bold mb-1">{hovered.date}</p>
-          <p className="text-indigo-300">Tayangan: <span className="text-white font-semibold">{hovered.views.toLocaleString("id-ID")}</span></p>
-          <p className="text-emerald-300">Pengunjung: <span className="text-white font-semibold">{hovered.visitors.toLocaleString("id-ID")}</span></p>
+          <p className="font-bold mb-1 text-slate-light">{hovered.date}</p>
+          <p className="text-accent">Tayangan: <span className="text-white font-semibold">{hovered.views.toLocaleString("id-ID")}</span></p>
+          <p className="text-emerald-400">Pengunjung: <span className="text-white font-semibold">{hovered.visitors.toLocaleString("id-ID")}</span></p>
         </div>
       )}
 
       {/* Legend */}
-      <div className="absolute bottom-0 right-0 flex items-center gap-4 text-xs text-gray-400">
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-0.5 bg-indigo-500 rounded-full inline-block" />Tayangan
+      <div className="flex justify-end items-center gap-4 mt-4 text-xs text-slate-muted">
+        <span className="flex items-center gap-1.5 font-medium">
+          <span className="w-3 h-0.5 bg-accent rounded-full inline-block" />Tayangan
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5 font-medium">
           <span className="w-3 h-0.5 bg-emerald-500 rounded-full inline-block" />Pengunjung
         </span>
       </div>

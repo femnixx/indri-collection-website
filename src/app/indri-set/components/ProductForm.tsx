@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseData as supabase } from "@/lib/supabaseClient";
 
 export default function ProductForm({ categories }: { categories: any[] }) {
   const router = useRouter();
@@ -110,7 +110,7 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
       <button 
         type="submit" disabled={loading}
-        className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full bg-accent text-white p-2.5 rounded-xl hover:bg-highlight disabled:bg-slate-muted font-bold transition-all duration-200 cursor-pointer"
       >
         {loading ? "Menyimpan..." : "Tambah Produk"}
       </button>
