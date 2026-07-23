@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-50 antialiased text-slate-800" suppressHydrationWarning>
+      <body className="min-h-screen bg-background antialiased text-slate-800" suppressHydrationWarning>
         <Script strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=G-2CG3BPV3HG`} />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
