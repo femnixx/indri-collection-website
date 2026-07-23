@@ -25,7 +25,7 @@ export function useProducts() {
       const groups: Category[] = json.data || [];
       setCategories(groups);
       setActiveCategory((prev) => {
-        if (!prev) return groups[0] ?? null;
+        if (!prev) return null;
         return groups.find((c) => c.id === prev.id) ?? groups[0] ?? null;
       });
     } catch (err: any) {

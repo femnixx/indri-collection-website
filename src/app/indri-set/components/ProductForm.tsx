@@ -40,7 +40,7 @@ export default function ProductForm({ categories }: { categories: any[] }) {
         .getPublicUrl(filePath);
 
       // 3. Submit metadata to internal API
-      const response = await fetch("/api/admin/products", {
+      const response = await fetch("/api/indri-set/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, image_url: publicUrl }),
