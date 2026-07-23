@@ -4,7 +4,7 @@ import * as React from "react"
 import useEmblaCarousel from "embla-carousel-react"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button, type ButtonProps } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 const CarouselContext = React.createContext(null)
@@ -149,7 +149,7 @@ function CarouselPrevious({
   variant = "outline",
   size = "icon-sm",
   ...props
-}) {
+}: React.ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
   const [mounted, setMounted] = React.useState(false)
 
@@ -179,7 +179,7 @@ function CarouselNext({
   variant = "outline",
   size = "icon-sm",
   ...props
-}) {
+}: React.ComponentProps<typeof Button>) {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
   const [mounted, setMounted] = React.useState(false)
 

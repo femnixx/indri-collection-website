@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { navLinks } from '../../constants';
+import { navItems as navLinks } from '../../constants';
 import { Button } from "../ui/button";
 import Link from 'next/link';
 
