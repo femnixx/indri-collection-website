@@ -1,5 +1,16 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 
+function getStoragePathFromUrl(url: string): string | null {
+  try {
+    const marker = "/storage/v1/object/public/products/";
+    const index = url.indexOf(marker);
+    if (index === -1) return null;
+    return url.substring(index + marker.length);
+  } catch {
+    return null;
+  }
+}
+
 export const productRepository = {
   // Create a new product — uploads file to "products" bucket and inserts metadata to DB
   async create(
@@ -124,25 +135,42 @@ export const productRepository = {
       return acc;
     }, {});
 
-    const storage = supabase.storage.from("products");
+    const storageSupabase = supabase.storage.from("products");
 
     const enriched = await Promise.all(
       categories.map(async (cat) => {
         const rawProducts = productsByCategory[cat.id] || [];
+        const folderName = cat.name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '');
+
         const products = await Promise.all(
           rawProducts.map(async (product) => {
             let imageUrl = product.image_url;
-            if (!imageUrl) {
-              const folder = cat.name.replace(/\s+/g, "_").toLowerCase();
-              const { data: files } = await storage.list(folder);
+
+            if (imageUrl) {
+              if (imageUrl.startsWith("http")) {
+                // Already a valid full public URL
+              } else {
+                // Handle relative paths like "produk/filename.webp" or "filename.webp"
+                let cleanPath = imageUrl.startsWith("/") ? imageUrl.substring(1) : imageUrl;
+                if (cleanPath.startsWith("produk/")) {
+                  cleanPath = cleanPath.substring("produk/".length);
+                }
+                const finalPath = cleanPath.startsWith(folderName) ? cleanPath : `${folderName}/${cleanPath}`;
+                imageUrl = storageSupabase.getPublicUrl(finalPath).data.publicUrl;
+              }
+            } else {
+              // Fallback: If image_url is completely null/empty, check the bucket folder automatically
+              const { data: files } = await storageSupabase.list(folderName);
               const productFile = files?.find((f) => f.name !== ".keep");
               if (productFile) {
-                imageUrl = storage.getPublicUrl(`${folder}/${productFile.name}`).data.publicUrl;
+                imageUrl = storageSupabase.getPublicUrl(`${folderName}/${productFile.name}`).data.publicUrl;
               }
             }
+
             return { ...product, image_url: imageUrl };
           })
         );
+
         return { ...cat, products };
       })
     );

@@ -25,15 +25,9 @@ async function authorizeAdmin(supabase: any) {
   return { authorized: true, user };
 }
 
+// PUBLIC GET: Customers can fetch products without admin login
 export async function GET() {
   const supabase = await createSupabaseServerClient();
-  const auth = await authorizeAdmin(supabase);
-  if (!auth.authorized) {
-    return NextResponse.json(
-      { success: false, error: auth.error },
-      { status: auth.status }
-    );
-  }
 
   try {
     const data = await productService.getAllCategoriesWithProducts();

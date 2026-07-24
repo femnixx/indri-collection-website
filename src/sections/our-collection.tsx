@@ -47,12 +47,7 @@ export default function OurCollection() {
       }}
     >
       <div className="container mx-auto px-4 md:px-8">
-      <div className="container mx-auto px-4 md:px-8">
         <SectionHeader title="Koleksi" highlightedText="Kami" />
-        <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto font-light">
-          Temukan berbagai pilihan busana premium yang dirancang khusus untuk Anda
-        </p>
-
         <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto font-light">
           Temukan berbagai pilihan busana premium yang dirancang khusus untuk Anda
         </p>
