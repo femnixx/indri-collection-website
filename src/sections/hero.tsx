@@ -91,14 +91,19 @@ export default function Hero() {
           transform: sectionVisible ? 'scale(1)' : 'scale(0.5)',
           transition: 'opacity 500ms ease 900ms, transform 500ms ease 900ms',
         }}
-        className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl border border-white/20 transition-all duration-300 animate-whatsapp-bounce"
+        className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl border border-white/20 animate-whatsapp-bounce"
         onMouseEnter={(e) => {
           e.currentTarget.style.animation = 'none';
-          e.currentTarget.style.transform = 'scale(1.15) rotate(-8deg)';
+          e.currentTarget.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          e.currentTarget.style.transform = 'scale(1.18) rotate(-6deg)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.animation = '';
+          e.currentTarget.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
           e.currentTarget.style.transform = '';
+          setTimeout(() => {
+            e.currentTarget.style.animation = '';
+            e.currentTarget.style.transition = '';
+          }, 400);
         }}
       >
         <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8">
