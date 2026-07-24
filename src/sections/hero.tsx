@@ -80,7 +80,7 @@ export default function Hero() {
         </svg>
       </div>
 
-      {/* DynamicWhatsApp FAB */}
+      {/* DynamicW hatsApp FAB */}
       <a 
         href={`https://wa.me/${settings.whatsapp_number}`} 
         target="_blank" 
