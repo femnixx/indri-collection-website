@@ -20,6 +20,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8 max-w-3xl">
+      {/* 🌟 Header Section */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-primary">
           Pengaturan Panel & Kontak

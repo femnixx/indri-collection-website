@@ -28,6 +28,7 @@ export const navItems: NavItem[] = [
   { href: "#home", label: "Beranda" },
   { href: "#about-us", label: "Tentang kami" },
   { href: "#product", label: "Produk" },
+  { href: "/order", label: "Pesan" },
   { href: "#testimonial", label: "Testimoni" },
   { href: "#contact", label: "Kontak" },
 ];

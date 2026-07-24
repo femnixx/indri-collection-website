@@ -23,27 +23,34 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
     setLoading(true);
     try {
-      // 1. Upload to dynamic path: bucket/category_id/filename
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${formData.category_id}/${fileName}`;
+      // 1. Upload to file-based storage via API route → returns a visitable URL
+      const selectedCategory = categories.find((cat) => cat.id === formData.category_id);
+      const folderName = selectedCategory
+        ? selectedCategory.name.replace(/\s+/g, "_").toLowerCase()
+        : "uncategorized";
 
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(filePath, imageFile);
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", imageFile);
+      uploadFormData.append("folder", folderName);
+      uploadFormData.append("productName", formData.name);
 
-      if (uploadError) throw uploadError;
+      const uploadRes = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
 
-      // 2. Get Public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from("products")
-        .getPublicUrl(filePath);
+      const uploadResult = await uploadRes.json();
+      if (!uploadRes.ok || !uploadResult.success) {
+        throw new Error(uploadResult.error || "Gagal mengunggah gambar");
+      }
+
+      const imageUrl = uploadResult.url;
 
       // 3. Submit metadata to internal API
       const response = await fetch("/api/indri-set/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, image_url: publicUrl }),
+        body: JSON.stringify({ ...formData, image_url: imageUrl }),
       });
 
       const result = await response.json();
@@ -51,7 +58,7 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
       alert("Produk berhasil ditambahkan!");
       router.refresh();
-      
+
       // Reset Form
       setFormData({ name: "", description: "", category_id: "", is_published: true });
       setImageFile(null);
@@ -66,19 +73,19 @@ export default function ProductForm({ categories }: { categories: any[] }) {
   return (
     <form onSubmit={handleSubmit} className="max-w-md space-y-4 p-4 bg-white rounded shadow">
       <h2 className="text-lg font-bold">Tambah Produk Baru</h2>
-      
+
       <div>
         <label className="block text-sm font-medium">Nama Produk</label>
-        <input 
+        <input
           type="text" required value={formData.name}
           onChange={(e) => setFormData({...formData, name: e.target.value})}
-          className="w-full border p-2 rounded" 
+          className="w-full border p-2 rounded"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium">Kategori</label>
-        <select 
+        <select
           required value={formData.category_id}
           onChange={(e) => setFormData({...formData, category_id: e.target.value})}
           className="w-full border p-2 rounded"
@@ -92,23 +99,23 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
       <div>
         <label className="block text-sm font-medium">Foto Produk</label>
-        <input 
+        <input
           type="file" accept="image/*" required
           onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-          className="w-full" 
+          className="w-full"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium">Deskripsi</label>
-        <textarea 
+        <textarea
           value={formData.description}
           onChange={(e) => setFormData({...formData, description: e.target.value})}
-          className="w-full border p-2 rounded" 
+          className="w-full border p-2 rounded"
         />
       </div>
 
-      <button 
+      <button
         type="submit" disabled={loading}
         className="w-full bg-accent text-white p-2.5 rounded-xl hover:bg-highlight disabled:bg-slate-muted font-bold transition-all duration-200 cursor-pointer"
       >

@@ -79,7 +79,9 @@ export default function Header() {
     const delay = menuOpen ? 30 : 0;
 
     setTimeout(() => {
-      if (href === '#home') {
+      if (href.startsWith('/')) {
+        window.location.href = href;
+      } else if (href === '#home') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         const el = document.querySelector(href);

@@ -24,8 +24,10 @@ export async function POST(req: Request) {
       .from('product-images')
       .getPublicUrl(fileName);
 
-    return NextResponse.json({ success: true, url: publicUrlData.publicUrl });
+    return NextResponse.json({ success: true, url: imageUrl, filename: fileName });
   } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
