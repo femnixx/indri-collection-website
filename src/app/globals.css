@@ -1,8 +1,6 @@
-/* 1. Import Font dan Tailwind harus di paling atas */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import "tailwindcss";
 
-/* 2. Gunakan blok @theme untuk mendaftarkan variabel kustom */
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   
@@ -11,9 +9,23 @@
   --color-accent: #11B5F5;
   --color-accent-light: #6ED8FF;
   --color-highlight: #00B2FF;
+
+  --color-danger: #EF4444;
+  --color-danger-dark: #DC2626;
+
+  --color-slate-light: #F1F5F9;
+  --color-slate-muted: #94A3B8;
+  --color-slate-dark: #475569;
+
+  --color-background: #F5FCFF;
+  --color-sidebar: #ffffff;
+  --color-card: #FFFFFF;
+  --color-card-border: var(--color-accent);
+  
+  --color-text-body: var(--color-primary);
+  --color-text-heading: var(--color-primary);
 }
 
-/* 3. Gunakan @layer base untuk gaya global */
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -21,10 +33,13 @@
   }
 
   body {
-    /* Menerapkan font dan warna dari theme */
     @apply font-sans antialiased overflow-x-hidden;
     background-color: var(--color-secondary);
-    color: var(--color-primary);
+    color: var(--color-text-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-heading);
   }
 
   .will-animate {
@@ -32,7 +47,16 @@
   }
 }
 
-/* 4. Marquee Keyframes & Utilities */
+@layer components {
+  .card {
+    background-color: var(--color-card);
+    border: 2px solid var(--color-card-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
 @keyframes marquee-left {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -43,26 +67,38 @@
   100% { transform: translateX(0); }
 }
 
-.row-left, .row-right {
+.row-left, 
+.row-right {
   display: flex;
   width: max-content;
   will-change: transform;
 }
 
-.row-left { animation: marquee-left 35s linear infinite; }
-.row-right { animation: marquee-right 35s linear infinite; }
+.row-left { 
+  animation: marquee-left 35s linear infinite; 
+}
+
+.row-right { 
+  animation: marquee-right 35s linear infinite; 
+}
 
 .row-left:hover,
 .row-right:hover {
   animation-play-state: paused;
 }
 
-/* Tambahkan ini di bagian bawah globals.css */
 .hamburger-line {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* Animasi untuk menu terbuka */
-.menu-open .line-1 { transform: translateY(8px) rotate(45deg); }
-.menu-open .line-2 { opacity: 0; }
-.menu-open .line-3 { transform: translateY(-8px) rotate(-45deg); }
+.menu-open .line-1 { 
+  transform: translateY(8px) rotate(45deg); 
+}
+
+.menu-open .line-2 { 
+  opacity: 0; 
+}
+
+.menu-open .line-3 { 
+  transform: translateY(-8px) rotate(-45deg); 
+}

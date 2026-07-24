@@ -42,8 +42,8 @@ export default function AdminLayout({
   // Loading state
   if (isAuthorized === null) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 text-gray-600">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mb-4"></div>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-gray-600">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent mb-4"></div>
         <p className="text-sm font-semibold tracking-wide animate-pulse text-gray-400">
           Mengamankan Sesi Administrator...
         </p>
@@ -58,7 +58,7 @@ export default function AdminLayout({
   if (!isAuthorized) return null;
 
   return (
-    <div className="flex min-h-screen bg-slate-50/80 text-gray-800 flex-col md:flex-row antialiased">
+    <div className="flex min-h-screen bg-background text-slate-800 flex-col xl:flex-row antialiased">
       <AdminSidebar />
       <main className="flex-1 overflow-y-auto p-5 sm:p-8 lg:p-10">
         <div className="mx-auto max-w-7xl">

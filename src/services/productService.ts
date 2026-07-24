@@ -2,14 +2,6 @@ import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { productRepository } from "@/repositories/productRepository";
 
 export const productService = {
-  async getAllCategoriesWithProducts() {
-    return productRepository.getAllCategoriesWithProducts();
-  },
-
-  async deleteProduct(id: string) {
-    return productRepository.delete(id);
-  },
-
   async addProduct(
     productData: { name: string; description?: string; category_id: string | number; is_published: boolean },
     userId: string,

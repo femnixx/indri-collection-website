@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { categoryService } from "@/services/categoryService";
 import { categorySchema } from "@/validations/categorySchema";
 
 /**
  * Verify admin access using cookie-based session
+ * Verify admin access using cookie-based session
  */
+async function verifyAdmin() {
 async function verifyAdmin() {
   try {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
-
+    
     if (!user) {
       return { authorized: false, status: 401, error: "Unauthorized" };
     }
@@ -19,7 +22,19 @@ async function verifyAdmin() {
       .from("admins")
       .select("role")
       .eq("id", user.id)
+      .eq("id", user.id)
       .maybeSingle();
+
+    if (adminError) {
+      console.error("[CATEGORY API] Admin check error:", adminError.message);
+      return { authorized: false, status: 403, error: "Forbidden: " + adminError.message };
+    }
+
+    if (!admin || admin.role !== "admin") {
+      return { authorized: false, status: 403, error: "Forbidden: Insufficient permissions" };
+    }
+
+    return { authorized: true, user, status: 200 };
 
     if (adminError) {
       console.error("[CATEGORY API] Admin check error:", adminError.message);
@@ -36,12 +51,19 @@ async function verifyAdmin() {
     return { authorized: false, status: 403, error: "Forbidden: Unable to verify permissions" };
   }
 }
+    console.error("[CATEGORY API] Verification exception:", error);
+    return { authorized: false, status: 403, error: "Forbidden: Unable to verify permissions" };
+  }
+}
 
 /**
  * POST - Create a new category
  */
 export async function POST(request: Request) {
   try {
+    const auth = await verifyAdmin();
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     const auth = await verifyAdmin();
     if (!auth.authorized) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
@@ -59,6 +81,17 @@ export async function POST(request: Request) {
 
     const categoryResult = await categoryService.addCategory(parseResult.data);
     const category = categoryResult.data;
+
+    const folderName = category.name.replace(/\s+/g, '_').toLowerCase();
+    const supabaseServer = await createSupabaseServerClient();
+    const { error: storageError } = await supabaseServer.storage
+      .from('products')
+      .upload(`${folderName}/.keep`, new Blob([''], { type: 'text/plain' }), { upsert: true });
+
+    if (storageError) {
+      console.error("[CATEGORY POST] Storage creation failed:", storageError.message);
+      throw new Error("Gagal membuat folder storage.");
+    }
 
     return NextResponse.json({ success: true, data: category });
   } catch (error: any) {
@@ -78,6 +111,9 @@ export async function PATCH(request: Request) {
     const auth = await verifyAdmin();
     if (!auth.authorized) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    const auth = await verifyAdmin();
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const { oldName, newName } = await request.json();
@@ -89,6 +125,7 @@ export async function PATCH(request: Request) {
       );
     }
 
+    await categoryService.renameCategory(oldName, newName);
     await categoryService.renameCategory(oldName, newName);
 
     return NextResponse.json({ success: true, message: "Folder diubah." });
@@ -109,6 +146,9 @@ export async function DELETE(request: Request) {
     const auth = await verifyAdmin();
     if (!auth.authorized) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    const auth = await verifyAdmin();
+    if (!auth.authorized) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
     const { id, name } = await request.json();
@@ -120,6 +160,7 @@ export async function DELETE(request: Request) {
       );
     }
 
+    await categoryService.deleteCategory(id, name);
     await categoryService.deleteCategory(id, name);
 
     return NextResponse.json({ success: true, message: "Folder dihapus." });

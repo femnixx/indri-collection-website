@@ -1,31 +1,5 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 
-function getStoragePathFromUrl(publicUrl: string): string | null {
-  if (!publicUrl) return null;
-  try {
-    // 1. Strip query parameters (tokens, versioning, cache-busters)
-    const cleanUrl = publicUrl.split('?')[0];
-
-    // 2. Locate bucket marker "/products/"
-    const marker = "/products/";
-    const index = cleanUrl.indexOf(marker);
-
-    if (index !== -1) {
-      // Extract everything after /products/ (e.g., "kategori/31.png")
-      const rawPath = cleanUrl.substring(index + marker.length);
-      
-      // Decode percent-encoding (e.g., %20 -> space) and remove leading slashes
-      const sanitizedPath = decodeURIComponent(rawPath).replace(/^\/+/, '');
-      return sanitizedPath || null;
-    }
-
-    return null;
-  } catch (e) {
-    console.error("[STORAGE] Failed to parse storage path from URL:", e);
-    return null;
-  }
-}
-
 export const productRepository = {
   // Create a new product — uploads file to "products" bucket and inserts metadata to DB
   async create(
@@ -150,10 +124,28 @@ export const productRepository = {
       return acc;
     }, {});
 
-    const enriched = categories.map((cat) => {
-      const rawProducts = productsByCategory[cat.id] || [];
-      return { ...cat, products: rawProducts };
-    });
+    const storage = supabase.storage.from("products");
+
+    const enriched = await Promise.all(
+      categories.map(async (cat) => {
+        const rawProducts = productsByCategory[cat.id] || [];
+        const products = await Promise.all(
+          rawProducts.map(async (product) => {
+            let imageUrl = product.image_url;
+            if (!imageUrl) {
+              const folder = cat.name.replace(/\s+/g, "_").toLowerCase();
+              const { data: files } = await storage.list(folder);
+              const productFile = files?.find((f) => f.name !== ".keep");
+              if (productFile) {
+                imageUrl = storage.getPublicUrl(`${folder}/${productFile.name}`).data.publicUrl;
+              }
+            }
+            return { ...product, image_url: imageUrl };
+          })
+        );
+        return { ...cat, products };
+      })
+    );
 
     return enriched;
   }

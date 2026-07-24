@@ -2,8 +2,8 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import MobileMenu from "./header.jsx"; // Pastikan path ke header.jsx sudah benar
-import Footer from "./footer.jsx";     // Pastikan path ke footer.jsx sudah benar
+import MobileMenu from "./header"; // Pastikan path ke header sudah benar
+import Footer from "./footer";     // Pastikan path ke footer sudah benar
 
 export default function LayoutContentWrapper({
   children,

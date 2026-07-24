@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabaseData as supabase } from "@/lib/supabaseClient";
 
 export default function ProductForm({ categories }: { categories: any[] }) {
   const router = useRouter();
@@ -45,8 +46,8 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
       const imageUrl = uploadResult.url;
 
-      // 2. Submit metadata to internal API with the visitable image URL
-      const response = await fetch("/api/admin/products", {
+      // 3. Submit metadata to internal API
+      const response = await fetch("/api/indri-set/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, image_url: imageUrl }),
@@ -116,7 +117,7 @@ export default function ProductForm({ categories }: { categories: any[] }) {
 
       <button
         type="submit" disabled={loading}
-        className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full bg-accent text-white p-2.5 rounded-xl hover:bg-highlight disabled:bg-slate-muted font-bold transition-all duration-200 cursor-pointer"
       >
         {loading ? "Menyimpan..." : "Tambah Produk"}
       </button>

@@ -10,8 +10,8 @@ interface SummaryCardProps {
 
 const TREND_STYLES = {
   up: "bg-emerald-50 text-emerald-600",
-  down: "bg-red-50 text-red-600",
-  neutral: "bg-gray-100 text-gray-500",
+  down: "bg-danger/10 text-danger",
+  neutral: "bg-slate-light text-slate-muted",
 } as const;
 
 const TrendIcon = ({ trend }: { trend: AnalyticsSummaryMetric["trend"] }) => {
@@ -22,9 +22,9 @@ const TrendIcon = ({ trend }: { trend: AnalyticsSummaryMetric["trend"] }) => {
 
 export default function SummaryCard({ title, metric, accentBg }: SummaryCardProps) {
   return (
-    <div className="relative rounded-2xl bg-white border border-gray-100 p-6 shadow-sm shadow-gray-100/60 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+    <div className="relative rounded-xl bg-card border border-card-border p-6 transition-all duration-200">
     <div className="flex items-center justify-between mb-2">
-      <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+      <p className="text-xs font-bold uppercase tracking-wider text-slate-muted">
         {title}
       </p>
       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${TREND_STYLES[metric.trend]}`}>
@@ -32,7 +32,7 @@ export default function SummaryCard({ title, metric, accentBg }: SummaryCardProp
         {metric.change}
       </span>
     </div>
-    <p className="text-2xl font-extrabold text-gray-900 tracking-tight">
+    <p className="text-2xl font-extrabold text-primary tracking-tight">
       {metric.value}
     </p>
     

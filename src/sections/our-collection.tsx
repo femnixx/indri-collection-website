@@ -11,43 +11,28 @@ import {
 } from '../components/ui/carousel';
 import { useScrollReveal } from '../hooks/use-scroll-reveal';
 
+interface ProductItem {
+  id: string;
+  name: string;
+  image_url: string;
+  categories?: { name: string } | null;
+}
+
 export default function OurCollection() {
   const [sectionRef, isVisible] = useScrollReveal(0.08);
-  const [images, setImages] = useState<{ url: string; category?: string }[]>([]);
+  const [products, setProducts] = useState<ProductItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAllImages = async () => {
-      try {
-        const res = await fetch('/api/products', { cache: 'no-store' });
-        const data = await res.json();
-
-        if (!res.ok) {
-          console.error('Failed to fetch products:', data.error);
-          setIsLoading(false);
-          return;
-        }
-
-        // Map products to image objects using the visitable image_url from the database
-        const allImages: { url: string; category?: string }[] = (data || [])
-          .filter((product: any) => product.image_url)
-          .map((product: any) => ({
-            url: product.image_url,
-            category: product.categories?.name || 'Koleksi',
-          }));
-
-        // Shuffle images for variety
-        const shuffled = allImages.sort(() => Math.random() - 0.5);
-        setImages(shuffled);
-        console.log(`Loaded ${allImages.length} images from database`);
-      } catch (error) {
-        console.error('Gagal mengambil gambar:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllImages();
+    fetch('/api/products')
+      .then((r) => r.json())
+      .then((data: ProductItem[]) => {
+        // Shuffle for variety on each page load
+        const shuffled = [...data].sort(() => Math.random() - 0.5);
+        setProducts(shuffled);
+      })
+      .catch((err) => console.error('Gagal memuat produk:', err))
+      .finally(() => setIsLoading(false));
   }, []);
 
   return (
@@ -56,107 +41,98 @@ export default function OurCollection() {
       ref={sectionRef as any}
       className="w-full py-24 bg-secondary"
       style={{
-        opacity:   isVisible ? 1 : 0,
+        opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(24px)',
         transition: 'opacity 600ms ease, transform 600ms ease',
       }}
     >
+      <div className="container mx-auto px-4 md:px-8">
       <div className="container mx-auto px-4 md:px-8">
         <SectionHeader title="Koleksi" highlightedText="Kami" />
         <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto font-light">
           Temukan berbagai pilihan busana premium yang dirancang khusus untuk Anda
         </p>
 
+        <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto font-light">
+          Temukan berbagai pilihan busana premium yang dirancang khusus untuk Anda
+        </p>
+
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
           </div>
-        ) : images.length === 0 ? (
+        ) : products.length === 0 ? (
           <p className="text-center text-gray-400">Tidak ada gambar yang ditampilkan.</p>
         ) : (
-          <InfiniteCarousel images={images} />
+          <InfiniteCarousel products={products} />
         )}
       </div>
     </section>
   );
 }
 
-function InfiniteCarousel({ images }: { images: { url: string; category?: string }[] }) {
+function InfiniteCarousel({ products }: { products: ProductItem[] }) {
   const [api, setApi] = useState<any>(null);
 
   useEffect(() => {
     if (!api) return;
 
     let isPaused = false;
-    let interval: NodeJS.Timeout;
-
-    const startAutoscroll = () => {
-      interval = setInterval(() => {
-        if (!isPaused) {
-          api.scrollNext();
-        }
-      }, 2500);
-    };
-
-    const stopAutoscroll = () => {
-      if (interval) clearInterval(interval);
-    };
-
-    startAutoscroll();
+    const interval = setInterval(() => {
+      if (!isPaused) api.scrollNext();
+    }, 2500);
 
     const root = api.rootNode();
+    const pause = () => { isPaused = true; };
+    const resume = () => { isPaused = false; };
+
     if (root) {
-      root.addEventListener('mouseenter', () => { isPaused = true; });
-      root.addEventListener('mouseleave', () => { isPaused = false; });
+      root.addEventListener('mouseenter', pause);
+      root.addEventListener('mouseleave', resume);
     }
 
     return () => {
-      stopAutoscroll();
+      clearInterval(interval);
       if (root) {
-        root.removeEventListener('mouseenter', () => { isPaused = true; });
-        root.removeEventListener('mouseleave', () => { isPaused = false; });
+        root.removeEventListener('mouseenter', pause);
+        root.removeEventListener('mouseleave', resume);
       }
     };
   }, [api]);
 
-  // Repeat images many times to create a truly infinite feel
+  // Repeat to give an "infinite" feel
   const REPEAT_COUNT = 10;
-  const repeatedImages = Array.from({ length: REPEAT_COUNT }).flatMap((_, i) =>
-    images.map((item, index) => ({
-      ...item,
-      _key: `${i}-${item.url}-${index}`
-    }))
+  const repeatedItems = Array.from({ length: REPEAT_COUNT }).flatMap((_, i) =>
+    products.map((p) => ({ ...p, _key: `${i}-${p.id}` }))
   );
 
   return (
     <Carousel
-      opts={{
-        align: 'start',
-        loop: true,
-        slidesToScroll: 1,
-      }}
+      opts={{ align: 'start', loop: true, slidesToScroll: 1 }}
       setApi={setApi}
       plugins={[]}
       className="w-full"
     >
       <CarouselContent className="py-4">
-        {repeatedImages.map((item, index) => (
+        {repeatedItems.map((item) => (
           <CarouselItem key={item._key} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4 pl-4">
             <div className="group relative overflow-hidden rounded-3xl h-[400px] cursor-pointer shadow-xl transition-all duration-500 ease-out">
               <img
-                src={item.url || '/placeholder.png'}
-                alt={item.category || 'Koleksi'}
+                src={item.image_url || '/placeholder.png'}
+                alt={item.name}
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
 
               <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                  {item.category ? item.category.replace(/_/g, ' ') : 'Koleksi'}
-                </span>
-                <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
-                  {item.category ? item.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Koleksi'}
+                {item.categories?.name && (
+                  <span className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2 block opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    {item.categories.name}
+                  </span>
+                )}
+                <h3 className="text-xl font-bold text-white mb-1 drop-shadow-md line-clamp-2">
+                  {item.name}
                 </h3>
               </div>
             </div>
