@@ -13,21 +13,21 @@ export async function POST(req: Request) {
     const fileName = `${Math.random()}.${fileExt}`; 
 
     // Upload ke bucket 'product-images'
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('product-images')
       .upload(fileName, file);
 
     if (error) throw error;
 
     // Dapetin URL publiknya
-    const { data: publicUrlData } = supabase.storage
+    const { data } = supabase.storage
       .from('product-images')
       .getPublicUrl(fileName);
 
-    return NextResponse.json({ success: true, url: imageUrl, filename: fileName });
+    // Return using the correct data.publicUrl property
+    return NextResponse.json({ success: true, url: data.publicUrl, filename: fileName });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[UPLOAD API ERROR]:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
